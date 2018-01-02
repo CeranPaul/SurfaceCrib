@@ -1,0 +1,449 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		811E41081FFB130200E1250A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E41071FFB130200E1250A /* AppDelegate.swift */; };
+		811E410A1FFB130200E1250A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E41091FFB130200E1250A /* ViewController.swift */; };
+		811E410D1FFB130200E1250A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 811E410B1FFB130200E1250A /* Main.storyboard */; };
+		811E410F1FFB130200E1250A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 811E410E1FFB130200E1250A /* Assets.xcassets */; };
+		811E41121FFB130200E1250A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 811E41101FFB130200E1250A /* LaunchScreen.storyboard */; };
+		811E411D1FFB130200E1250A /* SurfaceCribTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E411C1FFB130200E1250A /* SurfaceCribTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		811E41191FFB130200E1250A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 811E40FC1FFB130200E1250A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 811E41031FFB130200E1250A;
+			remoteInfo = SurfaceCrib;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		811E41041FFB130200E1250A /* SurfaceCrib.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SurfaceCrib.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		811E41071FFB130200E1250A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		811E41091FFB130200E1250A /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		811E410C1FFB130200E1250A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		811E410E1FFB130200E1250A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		811E41111FFB130200E1250A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		811E41131FFB130200E1250A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		811E41181FFB130200E1250A /* SurfaceCribTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SurfaceCribTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		811E411C1FFB130200E1250A /* SurfaceCribTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurfaceCribTests.swift; sourceTree = "<group>"; };
+		811E411E1FFB130200E1250A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		811E41011FFB130200E1250A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		811E41151FFB130200E1250A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		811E40FB1FFB130200E1250A = {
+			isa = PBXGroup;
+			children = (
+				811E41061FFB130200E1250A /* SurfaceCrib */,
+				811E411B1FFB130200E1250A /* SurfaceCribTests */,
+				811E41051FFB130200E1250A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		811E41051FFB130200E1250A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				811E41041FFB130200E1250A /* SurfaceCrib.app */,
+				811E41181FFB130200E1250A /* SurfaceCribTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		811E41061FFB130200E1250A /* SurfaceCrib */ = {
+			isa = PBXGroup;
+			children = (
+				811E41071FFB130200E1250A /* AppDelegate.swift */,
+				811E41091FFB130200E1250A /* ViewController.swift */,
+				811E410B1FFB130200E1250A /* Main.storyboard */,
+				811E410E1FFB130200E1250A /* Assets.xcassets */,
+				811E41101FFB130200E1250A /* LaunchScreen.storyboard */,
+				811E41131FFB130200E1250A /* Info.plist */,
+			);
+			path = SurfaceCrib;
+			sourceTree = "<group>";
+		};
+		811E411B1FFB130200E1250A /* SurfaceCribTests */ = {
+			isa = PBXGroup;
+			children = (
+				811E411C1FFB130200E1250A /* SurfaceCribTests.swift */,
+				811E411E1FFB130200E1250A /* Info.plist */,
+			);
+			path = SurfaceCribTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		811E41031FFB130200E1250A /* SurfaceCrib */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 811E41211FFB130200E1250A /* Build configuration list for PBXNativeTarget "SurfaceCrib" */;
+			buildPhases = (
+				811E41001FFB130200E1250A /* Sources */,
+				811E41011FFB130200E1250A /* Frameworks */,
+				811E41021FFB130200E1250A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SurfaceCrib;
+			productName = SurfaceCrib;
+			productReference = 811E41041FFB130200E1250A /* SurfaceCrib.app */;
+			productType = "com.apple.product-type.application";
+		};
+		811E41171FFB130200E1250A /* SurfaceCribTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 811E41241FFB130200E1250A /* Build configuration list for PBXNativeTarget "SurfaceCribTests" */;
+			buildPhases = (
+				811E41141FFB130200E1250A /* Sources */,
+				811E41151FFB130200E1250A /* Frameworks */,
+				811E41161FFB130200E1250A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				811E411A1FFB130200E1250A /* PBXTargetDependency */,
+			);
+			name = SurfaceCribTests;
+			productName = SurfaceCribTests;
+			productReference = 811E41181FFB130200E1250A /* SurfaceCribTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		811E40FC1FFB130200E1250A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0920;
+				LastUpgradeCheck = 0920;
+				ORGANIZATIONNAME = "Ceran Digital Media";
+				TargetAttributes = {
+					811E41031FFB130200E1250A = {
+						CreatedOnToolsVersion = 9.2;
+						ProvisioningStyle = Automatic;
+					};
+					811E41171FFB130200E1250A = {
+						CreatedOnToolsVersion = 9.2;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 811E41031FFB130200E1250A;
+					};
+				};
+			};
+			buildConfigurationList = 811E40FF1FFB130200E1250A /* Build configuration list for PBXProject "SurfaceCrib" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 811E40FB1FFB130200E1250A;
+			productRefGroup = 811E41051FFB130200E1250A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				811E41031FFB130200E1250A /* SurfaceCrib */,
+				811E41171FFB130200E1250A /* SurfaceCribTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		811E41021FFB130200E1250A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				811E41121FFB130200E1250A /* LaunchScreen.storyboard in Resources */,
+				811E410F1FFB130200E1250A /* Assets.xcassets in Resources */,
+				811E410D1FFB130200E1250A /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		811E41161FFB130200E1250A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		811E41001FFB130200E1250A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				811E410A1FFB130200E1250A /* ViewController.swift in Sources */,
+				811E41081FFB130200E1250A /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		811E41141FFB130200E1250A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				811E411D1FFB130200E1250A /* SurfaceCribTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		811E411A1FFB130200E1250A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 811E41031FFB130200E1250A /* SurfaceCrib */;
+			targetProxy = 811E41191FFB130200E1250A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		811E410B1FFB130200E1250A /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				811E410C1FFB130200E1250A /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		811E41101FFB130200E1250A /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				811E41111FFB130200E1250A /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		811E411F1FFB130200E1250A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		811E41201FFB130200E1250A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		811E41221FFB130200E1250A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K62A888Z9M;
+				INFOPLIST_FILE = SurfaceCrib/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cerandm.SurfaceCrib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		811E41231FFB130200E1250A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K62A888Z9M;
+				INFOPLIST_FILE = SurfaceCrib/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cerandm.SurfaceCrib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		811E41251FFB130200E1250A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K62A888Z9M;
+				INFOPLIST_FILE = SurfaceCribTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cerandm.SurfaceCribTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SurfaceCrib.app/SurfaceCrib";
+			};
+			name = Debug;
+		};
+		811E41261FFB130200E1250A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K62A888Z9M;
+				INFOPLIST_FILE = SurfaceCribTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cerandm.SurfaceCribTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SurfaceCrib.app/SurfaceCrib";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		811E40FF1FFB130200E1250A /* Build configuration list for PBXProject "SurfaceCrib" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				811E411F1FFB130200E1250A /* Debug */,
+				811E41201FFB130200E1250A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		811E41211FFB130200E1250A /* Build configuration list for PBXNativeTarget "SurfaceCrib" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				811E41221FFB130200E1250A /* Debug */,
+				811E41231FFB130200E1250A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		811E41241FFB130200E1250A /* Build configuration list for PBXNativeTarget "SurfaceCribTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				811E41251FFB130200E1250A /* Debug */,
+				811E41261FFB130200E1250A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 811E40FC1FFB130200E1250A /* Project object */;
+}
