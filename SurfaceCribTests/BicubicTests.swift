@@ -203,7 +203,7 @@ class BicubicTests: XCTestCase {
     
     func testNormal()   {
         
-        let quill = convex!.normalAt(u: 0.0, v: 0.0)
+        let quill = try! convex!.normalAt(u: 0.0, v: 0.0)
         
         let target = Vector3D(i: 0.0, j: 0.0, k: 1.0)
         

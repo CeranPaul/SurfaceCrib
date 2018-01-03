@@ -374,88 +374,6 @@ open class Bicubic   {
         return Point3D(x: myX, y: myY, z: myZ)
     }
     
-    /// I think this was a troubleshooting step
-    func altPointAt(u: Double, v: Double) -> Point3D   {
-        
-        // Copy (and modify) the procedure used for Bicubic
-        let s = u
-        let s2 = s * s
-        let s3 = s2 * s
-        
-        let sRow = double4(s3, s2, s, 1.0)
-        
-        let t = v
-        let t2 = t * t
-        let t3 = t2 * t
-        
-        let tRow = double4(t3, t2, t, 1.0)
-        
-        
-        let qxT = qx.transpose
-        
-        /// Partial result in the matrix operations
-        var part = tRow * qxT   // The ordering of these multiplications has been changed
-        
-        let myX = dot(part, sRow)
-        
-        let qyT = qy.transpose
-        part = tRow * qyT
-        let myY = dot(part, sRow)
-        
-        let qzT = qz.transpose
-        part = tRow * qzT
-        let myZ = dot(part, sRow)
-        
-        return Point3D(x: myX, y: myY, z: myZ)
-    }
-    
-    /// Examine the coefficients by printing to terminal
-    public func showCoeff() -> Void  {
-        
-        print()
-        print("     X  ")
-        for g in 0...3   {
-            
-            let myRow = qx[g]
-            
-            let col1 = String(format: "%.3f", myRow[0])
-            let col2 = String(format: "%.3f", myRow[1])
-            let col3 = String(format: "%.3f", myRow[2])
-            let col4 = String(format: "%.3f", myRow[3])
-            
-            print(col1 + "  " + col2 + "  " + col3 + "  " + col4)
-       }
-        
-        print()
-        print("     Y  ")
-        for g in 0...3   {
-            
-            let myRow = qy[g]
-            
-            let col1 = String(format: "%.3f", myRow[0])
-            let col2 = String(format: "%.3f", myRow[1])
-            let col3 = String(format: "%.3f", myRow[2])
-            let col4 = String(format: "%.3f", myRow[3])
-            
-            print(col1 + "  " + col2 + "  " + col3 + "  " + col4)
-        }
-        
-        print()
-        print("     Z  ")
-        for g in 0...3   {
-            
-            let myRow = qz[g]
-            
-            let col1 = String(format: "%.3f", myRow[0])
-            let col2 = String(format: "%.3f", myRow[1])
-            let col3 = String(format: "%.3f", myRow[2])
-            let col4 = String(format: "%.3f", myRow[3])
-            
-            print(col1 + "  " + col2 + "  " + col3 + "  " + col4)
-        }
-        
-        print()
-    }
     
     /// Calculate the proper surrounding box
     /// Increase the number of intermediate points as necessary
@@ -817,7 +735,54 @@ open class Bicubic   {
         return decision
     }
 
-    
+    /// Examine the coefficients by printing to terminal
+    public func showCoeff() -> Void  {
+        
+        print()
+        print("     X  ")
+        for g in 0...3   {
+            
+            let myRow = qx[g]
+            
+            let col1 = String(format: "%.3f", myRow[0])
+            let col2 = String(format: "%.3f", myRow[1])
+            let col3 = String(format: "%.3f", myRow[2])
+            let col4 = String(format: "%.3f", myRow[3])
+            
+            print(col1 + "  " + col2 + "  " + col3 + "  " + col4)
+        }
+        
+        print()
+        print("     Y  ")
+        for g in 0...3   {
+            
+            let myRow = qy[g]
+            
+            let col1 = String(format: "%.3f", myRow[0])
+            let col2 = String(format: "%.3f", myRow[1])
+            let col3 = String(format: "%.3f", myRow[2])
+            let col4 = String(format: "%.3f", myRow[3])
+            
+            print(col1 + "  " + col2 + "  " + col3 + "  " + col4)
+        }
+        
+        print()
+        print("     Z  ")
+        for g in 0...3   {
+            
+            let myRow = qz[g]
+            
+            let col1 = String(format: "%.3f", myRow[0])
+            let col2 = String(format: "%.3f", myRow[1])
+            let col3 = String(format: "%.3f", myRow[2])
+            let col4 = String(format: "%.3f", myRow[3])
+            
+            print(col1 + "  " + col2 + "  " + col3 + "  " + col4)
+        }
+        
+        print()
+    }
+
     /// Might be useful for other intersections, also
     public static func errorToLine(surf: Bicubic, u: Double, v: Double, arrow: Line) -> Vector3D   {
         
@@ -1015,7 +980,83 @@ open class Bicubic   {
         return strokes
     }
     
-   /// Find the normal and intersection for a fillet tangency on a surface
+    
+    /// Generate the data necessary to show quills
+    /// - Parameters:
+    ///   - board:  The surface to be illustrated
+   public static func quillData(board: Bicubic) -> (pips: [Point3D], norms: [Vector3D])   {
+        
+        /// Data to be returned
+        var spots = [Point3D]()
+        var arrows = [Vector3D]()
+        
+        for myU in stride(from: 0.0, to: 1.0001, by: 0.2)   {
+            
+            for myV in stride(from: 0.0, to: 1.0001, by: 0.2)   {
+                
+                let root = try! board.pointAt(u: myU, v: myV)
+                spots.append(root)
+                
+                let dir = try! board.normalAt(u: myU, v: myV)
+                arrows.append(dir)
+                
+            }  // Inner loop
+            
+        }   // Outer loop
+    
+        return (spots, arrows)
+    }
+    
+    /// Generate the data necessary to show 200 triangles
+    /// This has nothing to do with allowable crown
+    /// - Parameters:
+    ///   - board:  The surface to be illustrated
+    /// - Returns: An array of line segments
+    public static func triData(board: Bicubic) -> [LineSeg]   {
+        
+        /// The data to be returned
+        var dashes = [LineSeg]()
+        
+        // Make some line segments that appear to be triangles for illustration
+        for myV in stride(from: 0.0, through: 0.9, by: 0.1)   {
+            
+            var prevDown = try! board.pointAt(u: 0.0, v: myV)
+            var prevUp = try! board.pointAt(u: 0.0, v: myV + 0.1)
+            
+            let startingGate = try! LineSeg(end1: prevDown, end2: prevUp)
+            startingGate.setIntent(PenTypes.Mesh)
+            dashes.append(startingGate)
+            
+            for u in stride(from: 0.1, through: 1.0, by: 0.1)   {
+                
+                let edgeDown = try! board.pointAt(u: u, v: myV)
+                let edgeUp = try! board.pointAt(u: u, v: myV + 0.1)
+                
+                let bottom = try! LineSeg(end1: prevDown, end2: edgeDown)
+                
+                dashes.append(bottom)
+                
+                let top = try! LineSeg(end1: prevUp, end2: edgeUp)
+                dashes.append(top)
+                
+                let cross = try! LineSeg(end1: edgeDown, end2: edgeUp)
+                dashes.append(cross)
+                
+                let diag = try! LineSeg(end1: prevDown, end2: edgeUp)
+                dashes.append(diag)
+                
+                prevDown = edgeDown   // Prepare for the next iteration
+                prevUp = edgeUp
+                
+            }
+            
+        }
+
+        return dashes
+    }
+    
+    
+    /// Find the normal and intersection for a fillet tangency on a surface
     /// - Parameters:
     ///   - playingField:  The surface to be used in finding the tangency point
     ///   - filletCL:  Line 'filletRad' away from the pillar surface

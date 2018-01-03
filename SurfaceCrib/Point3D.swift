@@ -50,6 +50,38 @@ public struct  Point3D: Hashable {
     }
     
     
+    /// Draw crosshairs to show point locations
+    /// This needs to be added to SketchGen
+    /// - Parameters:
+    ///   - pip:  Location to be illustrated
+    ///   - halfLength:  Optional size for half of each stroke
+    /// - Returns: Array of three LineSeg's to be plotted
+    public static func crosshair(pip: Point3D, halfLength: Double = 0.1) -> [LineSeg]  {
+        
+        /// The array to be returned
+        var dashes = [LineSeg]()
+        
+        var penDown = Point3D(x: pip.x - halfLength, y: pip.y, z: pip.z)
+        var penUp = Point3D(x: pip.x + halfLength, y: pip.y, z: pip.z)
+        
+        var dash = try! LineSeg(end1: penDown, end2: penUp)
+        dashes.append(dash)
+        
+        penDown = Point3D(x: pip.x, y: pip.y - halfLength, z: pip.z)
+        penUp = Point3D(x: pip.x, y: pip.y + halfLength, z: pip.z)
+        
+        dash = try! LineSeg(end1: penDown, end2: penUp)
+        dashes.append(dash)
+        
+        penDown = Point3D(x: pip.x, y: pip.y, z: pip.z - halfLength)
+        penUp = Point3D(x: pip.x, y: pip.y, z: pip.z + halfLength)
+        
+        dash = try! LineSeg(end1: penDown, end2: penUp)
+        dashes.append(dash)
+        
+        return dashes
+    }
+    
     /// Calculate the distance between two of 'em
     /// - Parameters:
     ///   - pt1:  One point

@@ -9,7 +9,7 @@
 import UIKit
 
 /// Rotation angles after user input.  Radians.  To feed the UIView
-var yawChange = 0.3   // Around the screen Y axis
+var yawChange = 0.0   // Around the screen Y axis
 var pitchChange = 0.0   // Around the screen X axis
 
 class ViewController: UIViewController {
@@ -35,7 +35,7 @@ class ViewController: UIViewController {
         let translation = recognizer.translation(in: self.view)
         if let view = recognizer.view {
             
-            yawChange = Double(translation.x) / -sensitivity
+            yawChange = Double(translation.x) / sensitivity
             pitchChange = Double(translation.y) / -sensitivity    // Due to screen inversion
             
             view.setNeedsDisplay()     // Request a display update
