@@ -112,8 +112,8 @@ class Sculpt   {
         
         
            // Show the intersection of a line with the surface
-           // There are a million other tests that should be run
-        let nexus = Point3D(x: -0.55, y: 0.3, z: 2.0)
+           // There are a million other tests that should be run for this ability
+        let nexus = Point3D(x: 0.55, y: -0.3, z: 2.0)
         var thataway = Vector3D(i: 0.2, j: -0.15, k: 0.6)
         thataway.normalize()
 
@@ -134,53 +134,74 @@ class Sculpt   {
         /// The intersection point
         let smack = splash.spot
 
-        let dashes = Point3D.crosshair(pip: smack)
+        let dashes = Point3D.crosshair(pip: smack)   // Illustrate the intersection point
         displayLines.append(contentsOf: dashes)
         
         
-//           // Test the ability to find points on the intersection of the surface and a plane
-//        let nexus2 = Point3D(x: 1.0, y: 1.0, z: 1.0)
-//        var pole2 = Vector3D(i: 0.707, j: 0.707, k: 0.0)
-//        pole2.normalize()
-//
-//        let sheet = try! Plane(spot: nexus2, arrow: pole2)
-//
-//        /// Constant value for 'v'
-//        let fixedV = 0.7
-//
-//        /// Initial value for range to check
-//        let span = ClosedRange<Double>(uncheckedBounds: (lower: 0.0, upper: 1.0))
-//
-//        let _ = board.crossing(sheet: sheet, span: span, inU: true, fixedParam: fixedV)
-//
-//
-//        let steadyV = 0.3
-//
-//        for jump in stride(from: 0.0, through: 0.9, by: 0.10)   {
-//
-//            let anchorA = try! board.pointAt(u: jump, v: steadyV)
-//            let anchorB = try! board.pointAt(u: jump + 0.1, v: steadyV)
-//
-//            let wire = try! LineSeg(end1: anchorA, end2: anchorB)
-//
-//            var deviation = 0.0
-//
-//            for step in stride(from: jump + 0.01, through: jump + 0.09, by: 0.01)   {
-//                let pip = try! board.pointAt(u: step, v: steadyV)
-//
-//                let diffs = wire.resolveRelative(speck: pip)
-//
-//                let separation = diffs.perp.length()   // Always a positive value
-//
-//                if separation > deviation   {
-//                    deviation = separation
-//                }
-//
-//            }
-//
-//            //            print(deviation)
-//        }
-//
+           // Test the ability to find points on the intersection of the surface and a plane
+        let nexus2 = Point3D(x: 1.0, y: 1.2, z: 1.0)
+        var pole2 = Vector3D(i: 0.707, j: 0.707, k: 0.0)
+        pole2.normalize()
+
+        /// The cutting plane
+        let sheet = try! Plane(spot: nexus2, arrow: pole2)   // How do I choose a direction to build a coordinate system?
+
+        
+        /// Assume some constant value for 'v'
+        let fixedV = 0.7
+
+        /// Initial value for range to check
+        let span = ClosedRange<Double>(uncheckedBounds: (lower: 0.0, upper: 1.0))
+
+        /// A smaller range of parameter values
+        let dev = board.crossing(sheet: sheet, span: span, inU: true, fixedParam: fixedV)  // Perhaps the return value only needs to be an
+                                                                                           // optional for the first run
+        
+        let span2 = dev!
+        let dev2 = board.crossing(sheet: sheet, span: span2, inU: true, fixedParam: fixedV)
+
+        let span3 = dev2!
+        let dev3 = board.crossing(sheet: sheet, span: span3, inU: true, fixedParam: fixedV)
+        
+        let span4 = dev3!
+        let dev4 = board.crossing(sheet: sheet, span: span4, inU: true, fixedParam: fixedV)
+        
+        let hip = try! board.pointAt(u: (dev4?.lowerBound)!, v: fixedV)
+        let hop = try! board.pointAt(u: (dev4?.upperBound)!, v: fixedV)
+        
+        let sep = Point3D.dist(pt1: hip, pt2: hop)
+        
+        print(String(sep) + "   " + String(describing: dev4?.lowerBound) + "   " + String(describing: dev4?.upperBound))
+        
+
+        // Find the deviation over a delta u of 0.01.  Why is that worthwhile to know?
+        let steadyV = 0.3
+
+        for jump in stride(from: 0.0, through: 0.9, by: 0.10)   {
+
+            let anchorA = try! board.pointAt(u: jump, v: steadyV)
+            let anchorB = try! board.pointAt(u: jump + 0.1, v: steadyV)
+
+            let wire = try! LineSeg(end1: anchorA, end2: anchorB)
+
+            var deviation = 0.0
+
+            for step in stride(from: jump + 0.01, through: jump + 0.09, by: 0.01)   {
+                let pip = try! board.pointAt(u: step, v: steadyV)
+
+                let diffs = wire.resolveRelative(speck: pip)
+
+                let separation = diffs.perp.length()   // Always a positive value
+
+                if separation > deviation   {
+                    deviation = separation
+                }
+
+            }
+
+            // print(deviation)
+        }
+
         
         
         // Hunt for the tangent point for a fillet

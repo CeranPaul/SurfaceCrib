@@ -22,8 +22,6 @@
 		811E41351FFB153500E1250A /* CoordinateSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E412D1FFB153500E1250A /* CoordinateSystem.swift */; };
 		811E41361FFB153500E1250A /* CoincidentPointsError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E412E1FFB153500E1250A /* CoincidentPointsError.swift */; };
 		811E41391FFB154200E1250A /* ArcPointsError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E41371FFB154200E1250A /* ArcPointsError.swift */; };
-		811E413A1FFB154200E1250A /* Arc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E41381FFB154200E1250A /* Arc.swift */; };
-		811E414D1FFB155400E1250A /* Perimeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E413B1FFB155200E1250A /* Perimeter.swift */; };
 		811E414E1FFB155400E1250A /* NonCoPlanarLinesError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E413C1FFB155200E1250A /* NonCoPlanarLinesError.swift */; };
 		811E414F1FFB155400E1250A /* ParallelError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E413D1FFB155200E1250A /* ParallelError.swift */; };
 		811E41501FFB155400E1250A /* ParallelPlanesError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E413E1FFB155200E1250A /* ParallelPlanesError.swift */; };
@@ -81,6 +79,8 @@
 		811E41901FFC681C00E1250A /* ParallelPlanesError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E413E1FFB155200E1250A /* ParallelPlanesError.swift */; };
 		811E41911FFC682200E1250A /* TriangleError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E416D1FFB1D2F00E1250A /* TriangleError.swift */; };
 		811E41921FFC683700E1250A /* Plane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E41461FFB155300E1250A /* Plane.swift */; };
+		81A87D9C209BD215003FF3ED /* VectorSurf.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A87D9B209BD215003FF3ED /* VectorSurf.swift */; };
+		81A87D9D209BD215003FF3ED /* VectorSurf.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A87D9B209BD215003FF3ED /* VectorSurf.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -113,8 +113,6 @@
 		811E412D1FFB153500E1250A /* CoordinateSystem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoordinateSystem.swift; sourceTree = "<group>"; };
 		811E412E1FFB153500E1250A /* CoincidentPointsError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoincidentPointsError.swift; sourceTree = "<group>"; };
 		811E41371FFB154200E1250A /* ArcPointsError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArcPointsError.swift; sourceTree = "<group>"; };
-		811E41381FFB154200E1250A /* Arc.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Arc.swift; sourceTree = "<group>"; };
-		811E413B1FFB155200E1250A /* Perimeter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Perimeter.swift; sourceTree = "<group>"; };
 		811E413C1FFB155200E1250A /* NonCoPlanarLinesError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NonCoPlanarLinesError.swift; sourceTree = "<group>"; };
 		811E413D1FFB155200E1250A /* ParallelError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParallelError.swift; sourceTree = "<group>"; };
 		811E413E1FFB155200E1250A /* ParallelPlanesError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParallelPlanesError.swift; sourceTree = "<group>"; };
@@ -143,6 +141,7 @@
 		811E416F1FFB204900E1250A /* EdgeOverflowError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EdgeOverflowError.swift; sourceTree = "<group>"; };
 		811E41711FFB26EF00E1250A /* BicubicTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BicubicTests.swift; sourceTree = "<group>"; };
 		811E41741FFB4E8800E1250A /* SurfTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurfTypes.swift; sourceTree = "<group>"; };
+		81A87D9B209BD215003FF3ED /* VectorSurf.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VectorSurf.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -186,8 +185,12 @@
 			children = (
 				811E41631FFB15F400E1250A /* Sculpt.swift */,
 				811E41271FFB153400E1250A /* Bicubic.swift */,
+				811E41291FFB153400E1250A /* Cubic.swift */,
 				811E41281FFB153400E1250A /* Easel.swift */,
+				811E41421FFB155300E1250A /* PointSurf.swift */,
+				81A87D9B209BD215003FF3ED /* VectorSurf.swift */,
 				811E41651FFB178D00E1250A /* Mesh.swift */,
+				811E41741FFB4E8800E1250A /* SurfTypes.swift */,
 				811E41691FFB1D1100E1250A /* EdgeShare.swift */,
 				811E416B1FFB1D1900E1250A /* Facet.swift */,
 				811E414B1FFB155400E1250A /* Line.swift */,
@@ -195,17 +198,12 @@
 				811E41481FFB155300E1250A /* OrthoVol.swift */,
 				811E414C1FFB155400E1250A /* PenCurve.swift */,
 				811E41491FFB155300E1250A /* PenTypes.swift */,
-				811E41741FFB4E8800E1250A /* SurfTypes.swift */,
-				811E413B1FFB155200E1250A /* Perimeter.swift */,
 				811E41461FFB155300E1250A /* Plane.swift */,
 				811E412D1FFB153500E1250A /* CoordinateSystem.swift */,
 				811E41411FFB155200E1250A /* Point3D.swift */,
-				811E41421FFB155300E1250A /* PointSurf.swift */,
 				811E413F1FFB155200E1250A /* Transform.swift */,
 				811E414A1FFB155400E1250A /* Vector3D.swift */,
-				811E41381FFB154200E1250A /* Arc.swift */,
 				811E41731FFB2F6D00E1250A /* Errors */,
-				811E41291FFB153400E1250A /* Cubic.swift */,
 				811E41671FFB1AD600E1250A /* writeSTL.swift */,
 				811E41071FFB130200E1250A /* AppDelegate.swift */,
 				811E41091FFB130200E1250A /* ViewController.swift */,
@@ -295,7 +293,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0920;
-				LastUpgradeCheck = 0920;
+				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = "Ceran Digital Media";
 				TargetAttributes = {
 					811E41031FFB130200E1250A = {
@@ -359,8 +357,8 @@
 				811E41301FFB153500E1250A /* Easel.swift in Sources */,
 				811E41591FFB155400E1250A /* SurfaceInputError.swift in Sources */,
 				811E410A1FFB130200E1250A /* ViewController.swift in Sources */,
-				811E413A1FFB154200E1250A /* Arc.swift in Sources */,
 				811E41351FFB153500E1250A /* CoordinateSystem.swift in Sources */,
+				81A87D9C209BD215003FF3ED /* VectorSurf.swift in Sources */,
 				811E416E1FFB1D3000E1250A /* TriangleError.swift in Sources */,
 				811E415D1FFB155400E1250A /* Line.swift in Sources */,
 				811E414F1FFB155400E1250A /* ParallelError.swift in Sources */,
@@ -370,7 +368,6 @@
 				811E41511FFB155400E1250A /* Transform.swift in Sources */,
 				811E416A1FFB1D1100E1250A /* EdgeShare.swift in Sources */,
 				811E41661FFB178E00E1250A /* Mesh.swift in Sources */,
-				811E414D1FFB155400E1250A /* Perimeter.swift in Sources */,
 				811E41681FFB1AD600E1250A /* writeSTL.swift in Sources */,
 				811E41361FFB153500E1250A /* CoincidentPointsError.swift in Sources */,
 				811E415B1FFB155400E1250A /* PenTypes.swift in Sources */,
@@ -430,6 +427,7 @@
 				811E417F1FFC670400E1250A /* Transform.swift in Sources */,
 				811E41891FFC67E500E1250A /* CoincidentPlanesError.swift in Sources */,
 				811E417D1FFC66F800E1250A /* Line.swift in Sources */,
+				81A87D9D209BD215003FF3ED /* VectorSurf.swift in Sources */,
 				811E41821FFC676100E1250A /* SurfaceInputError.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -478,6 +476,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -485,6 +484,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -512,7 +512,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -535,6 +535,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -542,6 +543,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -563,7 +565,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -578,6 +580,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = K62A888Z9M;
 				INFOPLIST_FILE = SurfaceCrib/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cerandm.SurfaceCrib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -593,6 +596,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = K62A888Z9M;
 				INFOPLIST_FILE = SurfaceCrib/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cerandm.SurfaceCrib;
 				PRODUCT_NAME = "$(TARGET_NAME)";

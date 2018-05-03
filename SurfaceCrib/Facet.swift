@@ -1,8 +1,8 @@
 //
 //  Facet.swift
-//  TriGen
+//  SurfaceCrib
 //
-//  Created by Paul Hollingshead on 9/6/17.
+//  Created by Paul on 9/6/17.
 //  Copyright © 2017 Ceran Digital Media. All rights reserved.
 //
 

@@ -196,7 +196,7 @@ class BicubicTests: XCTestCase {
         
         let fred2 = convex!.partV(u: 0.0, v: 0.0)
         
-        let outX2 = Vector3D(i: 0.0, j: 3.5, k: 3.4)
+        let outX2 = Vector3D(i: 0.0, j: 3.5, k: -1.0)
         
         XCTAssertEqual(fred2, outX2)
     }
@@ -205,7 +205,7 @@ class BicubicTests: XCTestCase {
         
         let quill = try! convex!.normalAt(u: 0.0, v: 0.0)
         
-        let target = Vector3D(i: 0.0, j: 0.0, k: 1.0)
+        let target = Vector3D(i: 0.18884, j: 0.26977, k: 0.94422)
         
         XCTAssertEqual(quill, target)
     }
@@ -218,7 +218,7 @@ class BicubicTests: XCTestCase {
         
         let laser = try! Line(spot: nexus, arrow: thataway)
         
-        let target = Point3D(x: 0.5, y: 0.5, z: 0.5)
+        let target = Point3D(x: 0.45377, y: 0.54865, z: 1.44786)
 
         let trial = try! Bicubic.intersectSurfLine(surf: convex!, arrow: laser)
         

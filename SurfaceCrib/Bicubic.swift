@@ -1,9 +1,9 @@
 //
 //  Bicubic.swift
-//  SingleLab
+//  SurfaceCrib
 //
 //  Created by Paul on 5/23/17.
-//  Copyright © 2017 Ceran Digital Media.  See LICENSE.md
+//  Copyright © 2018 Ceran Digital Media.  See LICENSE.md
 //
 
 import Foundation
@@ -324,7 +324,7 @@ open class Bicubic   {
             paramCol.append(Float(t))
         }
         
-        for g in 0...15   {
+        for _ in 0...15   {
             
             paramCol.append(Float(1.0))
         }
@@ -1053,6 +1053,113 @@ open class Bicubic   {
         }
 
         return dashes
+    }
+    
+    
+    /// Find the range of an iso-parameter curve where it crosses a plane
+    /// This is part of finding the intersection - by successively refining the interval
+    /// Assumes that there is only one intersection
+    /// - Parameters:
+    ///   - sheet:  The Plane to be used in testing for a crossing
+    ///   - span:  A range of a single surface parameter in which to hunt
+    ///   - inU:  Whether the trial range is in u, or in v
+    ///   - fixedParam:  Value for the invariant parameter
+    /// - Returns: A smaller ClosedRange<Double>
+    func crossing(sheet: Plane, span: ClosedRange<Double>, inU: Bool, fixedParam: Double) -> ClosedRange<Double>?   {
+        
+        /// Number of pieces to divide range
+        let chunks = 5
+        
+        /// Parameter step
+        let parStep = (span.upperBound - span.lowerBound) / Double(chunks)
+        
+        /// The possible return value
+        var tighter: ClosedRange<Double>
+        
+        
+        var lowerPoint = try! self.pointAt(u: span.lowerBound, v: fixedParam)
+        
+        if !inU   {
+            lowerPoint = try! self.pointAt(u: fixedParam, v: span.lowerBound)
+        }
+        
+        
+        let lowerSep = sheet.resolveRelative(pip: lowerPoint)
+        var refArrow = lowerSep.perp
+        
+        // Actually should do something different here if you end up with a zero vector
+        if !refArrow.isZero()   {
+            refArrow.normalize()
+        }
+        
+        /// Recent value of parameter
+        var previousParam = span.lowerBound
+        
+        for g in 1...chunks   {
+            
+            let runningParam = span.lowerBound + Double(g) * parStep   // Generate a new parameter value
+            
+            // Find the corresponding point on the surface
+            var runningPoint = try! self.pointAt(u: runningParam, v: fixedParam)
+            
+            if !inU   {
+                runningPoint = try! self.pointAt(u: fixedParam, v: runningParam)
+            }
+            
+            // See which side of 'sheet' it is on
+            let runningSep = sheet.resolveRelative(pip: runningPoint)
+            let runningArrow = runningSep.perp
+            
+            /// Length of "runningArrow" when projected to the reference vector
+            let projection = Vector3D.dotProduct(lhs: runningArrow, rhs: refArrow)
+            
+            if projection < 0.0   {   // Opposite of the reference, so a crossing was just passed
+                tighter = ClosedRange<Double>(uncheckedBounds: (lower: previousParam, upper: runningParam))
+                return tighter   // Bails after the first crossing found, even if there happen to be more
+            }  else  {
+                previousParam = runningParam   // Prepare for checking the next interval
+            }
+        }
+        
+        return nil
+    }
+    
+    /// Find the relationship between a plane and the four corners
+    /// This prompts a bunch of unit tests
+    /// This method is not suitable when a plane is nearly tangent to the surface
+    /// - Parameters:
+    ///   - flat:  The plane to be checked
+    /// - Returns: A flag indicating whether or not the plane intersects
+    func cornerCheck(flat: Plane) -> Bool   {
+        
+        /// The value to be returned
+        let flag = false
+        
+        let cornerA = try! self.pointAt(u: 0.0, v: 0.0)
+        let dirPairA = flat.resolveRelative(pip: cornerA)
+        let vertA = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairA.perp)
+        
+        let cornerB = try! self.pointAt(u: 1.0, v: 0.0)
+        let dirPairB = flat.resolveRelative(pip: cornerB)
+        let vertB = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairB.perp)
+        
+        let cornerC = try! self.pointAt(u: 1.0, v: 1.0)
+        let dirPairC = flat.resolveRelative(pip: cornerC)
+        let vertC = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairC.perp)
+        
+        let cornerD = try! self.pointAt(u: 0.0, v: 1.0)
+        let dirPairD = flat.resolveRelative(pip: cornerD)
+        let vertD = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairD.perp)
+        
+        /// Positive if all of the corner points are on the same side of the plane, either positive, or negative.
+        let prod = vertA * vertB * vertC * vertD
+
+        if prod < 0.0 { return true }
+        
+           // Deal with the case of two positives and two negatives
+        
+        
+        return flag
     }
     
     

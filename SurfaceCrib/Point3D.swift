@@ -1,15 +1,15 @@
 //
 //  Point3D.swift
-//  SketchCurves
+//  SurfaceCrib
 //
 //  Created by Paul on 8/11/15.
-//  Copyright © 2016 Ceran Digital Media. All rights reserved.  See LICENSE.md
+//  Copyright © 2018 Ceran Digital Media. All rights reserved.  See LICENSE.md
 //
 
 import UIKit
 
-/// Simple representation of a position in space by the use of three orthogonal coordinates
-/// The default initializer suffices
+/// Simple representation of a position in space by the use of three orthogonal coordinates.
+/// The default initializer suffices.
 public struct  Point3D: Hashable {
     
     var x: Double    // Eventually these should be set as private?

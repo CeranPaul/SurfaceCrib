@@ -74,6 +74,24 @@ public struct Plane   {
     }
     
     
+    /// This needs to be added back into SketchGen
+    /// - Parameters:
+    ///   - pip:  Point of interest
+    /// - Returns: Tuple of Vectors
+    /// - Warning:  This will screw up if pip is at the origin of the plane
+    public func resolveRelative(pip: Point3D) -> (inPlane: Vector3D, perp: Vector3D)   {
+        
+        let bridge = Vector3D.built(from: self.location, towards: pip)
+        
+        let along = Vector3D.dotProduct(lhs: bridge, rhs: self.normal)
+        let perp = self.normal * along
+        
+        let inPlane = bridge - perp
+        
+        return (inPlane, perp)
+    }
+    
+    
     /// Check to see that the line direction is perpendicular to the normal
     /// - Parameters:
     ///   - flat:  Plane for testing

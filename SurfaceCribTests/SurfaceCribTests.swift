@@ -2,12 +2,11 @@
 //  SurfaceCribTests.swift
 //  SurfaceCribTests
 //
-//  Created by Paul Hollingshead on 1/1/18.
+//  Created by Paul on 1/1/18.
 //  Copyright © 2018 Ceran Digital Media. All rights reserved.
 //
 
 import XCTest
-@testable import SurfaceCrib
 
 class SurfaceCribTests: XCTestCase {
     
