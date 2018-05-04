@@ -26,7 +26,7 @@ public class Mesh   {
     public static let Epsilon = 0.010   // Appropriate for millimeters
     
 
-    /// Simple constructor.  Accumulation happens through 'add', and 'addPoints'
+    /// Simple constructor.  Accumulation happens through 'add', and 'addPoints'.
     init()   {
         
         scales = [Facet]()
@@ -58,6 +58,7 @@ public class Mesh   {
     ///   - ptOmega:  Other end of the common edge
     ///   - chip:  The fresh Facet that contains this edge
     /// - Throws: EdgeOverflowError if a third triangle was attempted
+    /// - SeeAlso:  add()
     public func recordEdge(ptAlpha: Point3D, ptOmega: Point3D, chip: Facet) throws -> Void   {
         
         /// Shiny new EdgeShare
@@ -81,9 +82,9 @@ public class Mesh   {
         
     }
     
-    /// Combine two Meshes
+    /// Combine two Meshes.
     /// Should this be done by overloading the '+' operator?
-    func absorb(noob: Mesh) throws -> Void   {
+    public func absorb(noob: Mesh) throws -> Void   {
         
            // The way you want to do the combining means you can't use "formUnion"
         for hinge in noob.edgeSet   {
