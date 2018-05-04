@@ -1,9 +1,9 @@
 //
 //  TransformPlus.swift
-//  SketchGen
+//  SurfaceCrib
 //
 //  Created by Paul on 2/14/16.
-//  Copyright © 2016 Ceran Digital Media. All rights reserved.  See LICENSE.md
+//  Copyright © 2018 Ceran Digital Media. All rights reserved.  See LICENSE.md
 //
 
 import Foundation

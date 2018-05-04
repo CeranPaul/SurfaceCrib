@@ -1,14 +1,14 @@
 //
 //  Line.swift
-//  SketchCurves
+//  SurfaceCrib
 //
 //  Created by Paul on 8/12/15.
-//  Copyright © 2016 Ceran Digital Media. All rights reserved.  See LICENSE.md
+//  Copyright © 2018 Ceran Digital Media. All rights reserved.  See LICENSE.md
 //
 
 import Foundation
 
-/// Unbounded and straight
+/// Unbounded and straight.
 public struct Line: Equatable {
     
     /// A point to locate the line

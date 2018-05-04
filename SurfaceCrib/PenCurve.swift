@@ -1,6 +1,6 @@
 //
 //  PenCurve.swift
-//  SketchCurves
+//  SurfaceCrib
 //
 //  Created by Paul on 10/30/15.
 //  Copyright © 2017 Ceran Digital Media. All rights reserved.  See LICENSE.md

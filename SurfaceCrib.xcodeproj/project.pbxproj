@@ -81,6 +81,10 @@
 		811E41921FFC683700E1250A /* Plane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E41461FFB155300E1250A /* Plane.swift */; };
 		81A87D9C209BD215003FF3ED /* VectorSurf.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A87D9B209BD215003FF3ED /* VectorSurf.swift */; };
 		81A87D9D209BD215003FF3ED /* VectorSurf.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A87D9B209BD215003FF3ED /* VectorSurf.swift */; };
+		81A87D9E209BECF6003FF3ED /* Cubic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E41291FFB153400E1250A /* Cubic.swift */; };
+		81A87D9F209BECFF003FF3ED /* Mesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E41651FFB178D00E1250A /* Mesh.swift */; };
+		81A87DA0209BED07003FF3ED /* EdgeShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E41691FFB1D1100E1250A /* EdgeShare.swift */; };
+		81A87DA1209BED0D003FF3ED /* Facet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E416B1FFB1D1900E1250A /* Facet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -410,8 +414,11 @@
 				811E41801FFC673700E1250A /* Bicubic.swift in Sources */,
 				811E41811FFC675400E1250A /* PointSurf.swift in Sources */,
 				811E418F1FFC681600E1250A /* ParallelLinesError.swift in Sources */,
+				81A87DA0209BED07003FF3ED /* EdgeShare.swift in Sources */,
 				811E41841FFC677E00E1250A /* ZeroVectorError.swift in Sources */,
+				81A87D9F209BECFF003FF3ED /* Mesh.swift in Sources */,
 				811E418A1FFC67F900E1250A /* CoordinateSystem.swift in Sources */,
+				81A87DA1209BED0D003FF3ED /* Facet.swift in Sources */,
 				811E41831FFC676700E1250A /* ParameterRangeErrorDos.swift in Sources */,
 				811E41771FFC669E00E1250A /* Point3D.swift in Sources */,
 				811E41761FFB4E8800E1250A /* SurfTypes.swift in Sources */,
@@ -428,6 +435,7 @@
 				811E41891FFC67E500E1250A /* CoincidentPlanesError.swift in Sources */,
 				811E417D1FFC66F800E1250A /* Line.swift in Sources */,
 				81A87D9D209BD215003FF3ED /* VectorSurf.swift in Sources */,
+				81A87D9E209BECF6003FF3ED /* Cubic.swift in Sources */,
 				811E41821FFC676100E1250A /* SurfaceInputError.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

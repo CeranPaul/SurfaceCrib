@@ -10,14 +10,15 @@ import Foundation
 import Accelerate
 import simd
 
-/// Surface defined by polynomials for u and v parameter directions
-/// Some notations show "s" and "t" as the parameters, instead of "u" and "v"
+/// Surface defined by polynomials for u and v parameter directions.
+/// Some notations show "s" and "t" as the parameters, instead of "u" and "v".
 open class Bicubic   {
     
-    // Three set of 16 coefficients set up the way Foley and van Damm show it
+    // Three sets of 16 coefficients set up the way Foley and van Damm show it
     var qx, qy, qz: double4x4
     
-    /// This should be covered by the default constructor
+    
+    /// Most direct constructor
     init(freshqx: double4x4, freshqy: double4x4, freshqz: double4x4)   {
         
         self.qx = freshqx
@@ -158,8 +159,8 @@ open class Bicubic   {
         
     }
     
-    /// Generate parameters as the transpose of the way Foley and van Damm suggest
-    /// This should become a private function in Bicubic, probably
+    
+    /// Generate parameters as the transpose of the way Foley and van Damm suggest.
     private static func genParamCol(params: [PointSurf]) -> [Float]   {
         
         /// 16 x 16 collection of parameter values
@@ -332,23 +333,23 @@ open class Bicubic   {
         return paramCol
     }
     
-    /// Supply the point on the surface for the input parameter values
-    /// Assumes 0 < u < 1, and the same for v
+    /// Supply the point on the surface for the input parameter values.
+    /// Assumes 0 < u < 1, and the same for v - throws error otherwise.
     /// The order of operations in simd forces the transpose to be done on the coefficient matrices
     /// - Throws:
     ///   - ParameterRangeErrorDos if either of the input parameters are out of range
     /// - Returns: The corresponding point
-    public func pointAt(u: Double, v: Double) throws -> Point3D   {
+    public func pointAt(spot: PointSurf) throws -> Point3D   {
         
-        guard u >= 0.0  &&  u <= 1.0  &&  v >= 0.0  &&  v <= 1.0  else   { throw ParameterRangeErrorDos(parA: u, parB: v) }
+        guard spot.isInRange()  else   { throw ParameterRangeErrorDos(parA: spot.u, parB: spot.v) }
         
-        let s = u
+        let s = spot.u
         let s2 = s * s
         let s3 = s2 * s
         
         let sRow = double4(s3, s2, s, 1.0)
         
-        let t = v
+        let t = spot.v
         let t2 = t * t
         let t3 = t2 * t
         
@@ -375,9 +376,8 @@ open class Bicubic   {
     }
     
     
-    /// Calculate the proper surrounding box
-    /// Increase the number of intermediate points as necessary
-    /// Do this with parallel tangents, instead?
+    /// Calculate the proper surrounding box.
+    /// Increase the number of intermediate points as necessary.
     public func getExtent() -> OrthoVol   {
         
         let pieces = 15
@@ -385,51 +385,42 @@ open class Bicubic   {
         
         var bucket = [Point3D]()
         
-        let corner = try! self.pointAt(u: 0.0, v: 0.0)
-        bucket.append(corner)
-        
-        for g in 1...pieces   {
+        for g in 0...pieces   {
             
             let iso = Double(g) * step
             
-            for w in 1...pieces   {
-                let pip = try! self.pointAt(u: iso, v: Double(w) * step)
+            for w in 0...pieces   {
+                let spot = PointSurf(u: iso, v: Double(w) * step)
+                let pip = try! self.pointAt(spot: spot)
                 bucket.append(pip)
             }
             
         }
         
-        bucket.sort(by: { return $0.x < $1.x } )
-        let minX = bucket.first!.x
-        let maxX = bucket.last!.x
-        
-        bucket.sort(by: { return $0.y < $1.y } )
-        let minY = bucket.first!.y
-        let maxY = bucket.last!.y
-        
-        bucket.sort(by: { return $0.z < $1.z } )
-        let minZ = bucket.first!.z
-        let maxZ = bucket.last!.z
-        
-        let box = OrthoVol(minX: minX, maxX: maxX, minY: minY, maxY: maxY, minZ: minZ, maxZ: maxZ)
+        let box = OrthoVol(spots: bucket)
         
         return box
     }
+    
     
     /// Supply the partial derivative for the surface for the input parameter values
     /// Some notations show "s" and "t" as the parameters, instead of "u" and "v"
     /// - Parameters:
     ///   - u:  Parameter value for one direction.  Assumes 0 < u < 1
     ///   - v:  Parameter value for the other direction.  Assumes 0 < v < 1
+    /// - Throws:
+    ///   - ParameterRangeErrorDos if either of the input parameters are out of range
     /// - Returns: A non-normalized vector
-    public func partU(u: Double, v: Double) -> Vector3D   {
+    public func partU(spot: PointSurf) throws -> Vector3D   {
         
-        let s = u
+        guard spot.isInRange()  else   { throw ParameterRangeErrorDos(parA: spot.u, parB: spot.v) }
+        
+        let s = spot.u
         let s2 = s * s
         
         let sRow = double3(3.0 * s2, 2.0 * s, 1.0)
         
-        let t = v
+        let t = spot.v
         let t2 = t * t
         let t3 = t2 * t
         
@@ -519,16 +510,20 @@ open class Bicubic   {
     /// - Parameters:
     ///   - u:  Parameter value for one direction.  Assumes 0 < u < 1
     ///   - v:  Parameter value for the other direction.  Assumes 0 < v < 1
+    /// - Throws:
+    ///   - ParameterRangeErrorDos if either of the input parameters are out of range
     /// - Returns: A non-normalized vector
-    public func partV(u: Double, v: Double) -> Vector3D   {
+    public func partV(spot: PointSurf) throws -> Vector3D   {
         
-        let s = u
+        guard spot.isInRange()  else   { throw ParameterRangeErrorDos(parA: spot.u, parB: spot.v) }
+        
+        let s = spot.u
         let s2 = s * s
         let s3 = s2 * s
         
         let sRow = double4(s3, s2, s, 1.0)
         
-        let t = v
+        let t = spot.v
         let t2 = t * t
         
         let tRow = double3(3.0 * t2, 2.0 * t, 1.0)
@@ -602,6 +597,7 @@ open class Bicubic   {
         return Vector3D(i: myI, j: myJ, k: myK)
     }
     
+    
     /// Supply the normal to the surface for the input parameter values
     /// Some notations show "s" and "t" as the parameters, instead of "u" and "v"
     /// - Parameters:
@@ -610,14 +606,14 @@ open class Bicubic   {
     /// - Throws:
     ///   - ParameterRangeErrorDos if either of the input parameters are out of range
     /// - Returns: A normalized vector perpendicular to the surface at the point
-    public func normalAt(u: Double, v: Double) throws -> Vector3D   {
+    public func normalAt(spot: PointSurf) throws -> Vector3D   {
         
-        guard u >= 0.0  &&  u <= 1.0  &&  v >= 0.0  &&  v <= 1.0  else   { throw ParameterRangeErrorDos(parA: u, parB: v) }
+        guard spot.isInRange()  else   { throw ParameterRangeErrorDos(parA: spot.u, parB: spot.v) }
         
-        var dU = self.partU(u: u, v: v)
+        var dU = try! self.partU(spot: spot)
         dU.normalize()
         
-        var dV = self.partV(u: u, v: v)
+        var dV = try! self.partV(spot: spot)
         dV.normalize()
         
         var outward = try! Vector3D.crossProduct(lhs: dU, rhs: dV)    // dU and dV might not be parallel
@@ -633,15 +629,17 @@ open class Bicubic   {
     ///   - u:  Parameter value for one direction.  Assumes 0 < u < 1
     ///   - v:  Parameter value for the other direction.  Assumes 0 < v < 1
     /// - Returns: A flag
-    public func isConvex(targetU: Double, targetV: Double) throws -> Bool   {
+    public func isConvex(spot: PointSurf) throws -> Bool   {
+        
+        guard spot.isInRange()  else   { throw ParameterRangeErrorDos(parA: spot.u, parB: spot.v) }
         
         /// Central point
-        let base = try self.pointAt(u: targetU, v: targetV)
+        let base = try! self.pointAt(spot: spot)
         
-        var dU = self.partU(u: targetU, v: targetV)
+        var dU = try! self.partU(spot: spot)
         dU.normalize()
         
-        var dV = self.partV(u: targetU, v: targetV)
+        var dV = try! self.partV(spot: spot)
         dV.normalize()
         
         /// Reference direction at this point
@@ -689,7 +687,7 @@ open class Bicubic   {
             let surfSpot = try! Bicubic.intersectSurfLine(surf: self, arrow: ray)
             
             /// Normal at the intersection point.  Not necessarily coplanar with 'ref'
-            let localNorm = try! self.normalAt(u: surfSpot.param1, v: surfSpot.param2)
+            let localNorm = try! self.normalAt(spot: surfSpot.spotSurf)
             
             /// Normal line from peripheral point
             var distal = try! Line(spot: surfSpot.spot, arrow: localNorm)
@@ -734,6 +732,8 @@ open class Bicubic   {
         
         return decision
     }
+    
+    
 
     /// Examine the coefficients by printing to terminal
     public func showCoeff() -> Void  {
@@ -783,11 +783,15 @@ open class Bicubic   {
         print()
     }
 
-    /// Might be useful for other intersections, also
-    public static func errorToLine(surf: Bicubic, u: Double, v: Double, arrow: Line) -> Vector3D   {
+    
+    /// Generate a vector between the input point and the line.
+    /// - Parameters:
+    ///   - surf: Patch to be checked
+    ///   - spot: Trial point
+    public static func errorToLine(surf: Bicubic, spot: PointSurf, arrow: Line) -> Vector3D   {
         
         /// Approximation point on surface
-        let approx = try! surf.pointAt(u: u, v: v)
+        let approx = try! surf.pointAt(spot: spot)
         
         /// Nearest point on line
         let dropped = arrow.dropPoint(away: approx)
@@ -804,18 +808,18 @@ open class Bicubic   {
     /// - Returns: A single point, even if there might be multiple intersections
     ///    and the parameters of that point
     /// - Throws: ParameterRangeErrorDos for an out-of-range parameter
-    public static func intersectSurfLine(surf: Bicubic, arrow: Line) throws -> (spot: Point3D, param1: Double, param2: Double)   {
+    public static func intersectSurfLine(surf: Bicubic, arrow: Line) throws -> (spot: Point3D, spotSurf: PointSurf)   {
         
         
-        var approxU = 0.0   // Initial guesses
-        var approxV = 0.0
+        var approxSpot = PointSurf(u: 0.0, v:  0.0)    // Initial guess
+       
         
         var g = 0
         
         repeat   {
             
             /// Difference between approx and line
-            let error = Bicubic.errorToLine(surf: surf, u: approxU, v: approxV, arrow: arrow)
+            let error = Bicubic.errorToLine(surf: surf, spot: approxSpot, arrow: arrow)
 //            print(String(format: "%.5f", error.length()) + " at " + String(format: "%.3f", approxU) + "  " + String(format: "%.3f", approxV))
             
             if error.length() < Point3D.Epsilon   {
@@ -823,28 +827,28 @@ open class Bicubic   {
             }
             
             /// Vector in the U direction
-            let dirU = surf.partU(u: approxU, v: approxV)
+            let dirU = try! surf.partU(spot: approxSpot)
             
             var normU = dirU
             normU.normalize()
             let errorU = Vector3D.dotProduct(lhs: error, rhs: normU)
             
             /// Vector in the V direction
-            let dirV = surf.partV(u: approxU, v: approxV)
+            let dirV = try! surf.partV(spot: approxSpot)
             
             var normV = dirV
             normV.normalize()
             let errorV = Vector3D.dotProduct(lhs: error, rhs: normV)
             
             if abs(errorU) > abs(errorV)   {    // Follow the stronger partial
-                approxU += errorU / dirU.length()
-                if approxU < 0.0 || approxU > 1.0   {
-                    throw ParameterRangeErrorDos(parA: approxU, parB: approxV)
+                approxSpot.u += errorU / dirU.length()
+                if approxSpot.u < 0.0 || approxSpot.u > 1.0   {
+                    throw ParameterRangeErrorDos(parA: approxSpot.u, parB: approxSpot.v)
                 }
             }  else  {
-                approxV += errorV / dirV.length()
-                if approxV < 0.0 || approxV > 1.0   {
-                    throw ParameterRangeErrorDos(parA: approxU, parB: approxV)
+                approxSpot.v += errorV / dirV.length()
+                if approxSpot.v < 0.0 || approxSpot.v > 1.0   {
+                    throw ParameterRangeErrorDos(parA: approxSpot.u, parB: approxSpot.v)
                 }
             }
             
@@ -853,11 +857,11 @@ open class Bicubic   {
         } while g < 25
         
         
-        let pierce = try! surf.pointAt(u: approxU, v: approxV)
+        let pierce = try! surf.pointAt(spot: approxSpot)
 
 //        print(String(g) + " P: " + String(format: "%.3f", approxU) + " " + String(format: "%.3f", approxV))
 
-        return (pierce, approxU, approxV)
+        return (pierce, approxSpot)
     }
     
     
@@ -948,8 +952,8 @@ open class Bicubic   {
                 
                 let p = Double(g) * 0.05
                 
-                
-                let currentPt = try! panel.pointAt(u: p, v: v)
+                let dot = PointSurf(u: p, v: v)
+                let currentPt = try! panel.pointAt(spot: dot)
                 
                 if g > 0   {
                     let wire = try! LineSeg(end1: priorPt, end2: currentPt)
@@ -964,8 +968,8 @@ open class Bicubic   {
                 
                 let p = Double(g) * 0.05
                 
-                
-                let currentPt = try! panel.pointAt(u: v, v: p)
+                let dot = PointSurf(u: v, v: p)
+                let currentPt = try! panel.pointAt(spot: dot)
                 
                 if g > 0   {
                     let wire = try! LineSeg(end1: priorPt, end2: currentPt)
@@ -981,7 +985,7 @@ open class Bicubic   {
     }
     
     
-    /// Generate the data necessary to show quills
+    /// Generate the data necessary to show quills.
     /// - Parameters:
     ///   - board:  The surface to be illustrated
    public static func quillData(board: Bicubic) -> (pips: [Point3D], norms: [Vector3D])   {
@@ -994,10 +998,11 @@ open class Bicubic   {
             
             for myV in stride(from: 0.0, to: 1.0001, by: 0.2)   {
                 
-                let root = try! board.pointAt(u: myU, v: myV)
+                let dot = PointSurf(u: myU, v: myV)
+                let root = try! board.pointAt(spot: dot)
                 spots.append(root)
                 
-                let dir = try! board.normalAt(u: myU, v: myV)
+                let dir = try! board.normalAt(spot: dot)
                 arrows.append(dir)
                 
             }  // Inner loop
@@ -1007,8 +1012,8 @@ open class Bicubic   {
         return (spots, arrows)
     }
     
-    /// Generate the data necessary to show 200 triangles
-    /// This has nothing to do with allowable crown
+    /// Generate the data necessary to show 200 triangles.
+    /// This has nothing to do with allowable crown.
     /// - Parameters:
     ///   - board:  The surface to be illustrated
     /// - Returns: An array of line segments
@@ -1020,8 +1025,10 @@ open class Bicubic   {
         // Make some line segments that appear to be triangles for illustration
         for myV in stride(from: 0.0, through: 0.9, by: 0.1)   {
             
-            var prevDown = try! board.pointAt(u: 0.0, v: myV)
-            var prevUp = try! board.pointAt(u: 0.0, v: myV + 0.1)
+            var dot = PointSurf(u: 0.0, v: myV)
+            var prevDown = try! board.pointAt(spot: dot)
+            dot = PointSurf(u: 0.0, v: myV + 0.1)
+            var prevUp = try! board.pointAt(spot: dot)
             
             let startingGate = try! LineSeg(end1: prevDown, end2: prevUp)
             startingGate.setIntent(PenTypes.Mesh)
@@ -1029,8 +1036,10 @@ open class Bicubic   {
             
             for u in stride(from: 0.1, through: 1.0, by: 0.1)   {
                 
-                let edgeDown = try! board.pointAt(u: u, v: myV)
-                let edgeUp = try! board.pointAt(u: u, v: myV + 0.1)
+                dot = PointSurf(u: u, v: myV)
+                let edgeDown = try! board.pointAt(spot: dot)
+                dot = PointSurf(u: u, v: myV + 0.1)
+                let edgeUp = try! board.pointAt(spot: dot)
                 
                 let bottom = try! LineSeg(end1: prevDown, end2: edgeDown)
                 
@@ -1056,14 +1065,14 @@ open class Bicubic   {
     }
     
     
-    /// Find the range of an iso-parameter curve where it crosses a plane
-    /// This is part of finding the intersection - by successively refining the interval
-    /// Assumes that there is only one intersection
+    /// Find the range of an iso-parameter curve where it crosses a plane.
+    /// This is part of finding the intersection - by successively refining the interval.
+    /// Assumes that there is only one intersection.
     /// - Parameters:
-    ///   - sheet:  The Plane to be used in testing for a crossing
-    ///   - span:  A range of a single surface parameter in which to hunt
-    ///   - inU:  Whether the trial range is in u, or in v
-    ///   - fixedParam:  Value for the invariant parameter
+    ///   - sheet:  The Plane to be used in testing for a crossing.
+    ///   - span:  A range of a single surface parameter in which to hunt.
+    ///   - inU:  Whether the trial range is in u, or in v.
+    ///   - fixedParam:  Value for the invariant parameter.
     /// - Returns: A smaller ClosedRange<Double>
     func crossing(sheet: Plane, span: ClosedRange<Double>, inU: Bool, fixedParam: Double) -> ClosedRange<Double>?   {
         
@@ -1076,11 +1085,12 @@ open class Bicubic   {
         /// The possible return value
         var tighter: ClosedRange<Double>
         
-        
-        var lowerPoint = try! self.pointAt(u: span.lowerBound, v: fixedParam)
+        let dot = PointSurf(u: span.lowerBound, v: fixedParam)
+        var lowerPoint = try! self.pointAt(spot: dot)
         
         if !inU   {
-            lowerPoint = try! self.pointAt(u: fixedParam, v: span.lowerBound)
+            let speck = PointSurf(u: fixedParam, v: span.lowerBound)
+            lowerPoint = try! self.pointAt(spot: speck)
         }
         
         
@@ -1100,10 +1110,12 @@ open class Bicubic   {
             let runningParam = span.lowerBound + Double(g) * parStep   // Generate a new parameter value
             
             // Find the corresponding point on the surface
-            var runningPoint = try! self.pointAt(u: runningParam, v: fixedParam)
+            let speck = PointSurf(u: runningParam, v: fixedParam)
+            var runningPoint = try! self.pointAt(spot: speck)
             
             if !inU   {
-                runningPoint = try! self.pointAt(u: fixedParam, v: runningParam)
+                let speck = PointSurf(u: fixedParam, v: runningParam)
+                runningPoint = try! self.pointAt(spot: speck)
             }
             
             // See which side of 'sheet' it is on
@@ -1135,19 +1147,23 @@ open class Bicubic   {
         /// The value to be returned
         let flag = false
         
-        let cornerA = try! self.pointAt(u: 0.0, v: 0.0)
+        var speck = PointSurf(u: 0.0, v: 0.0)
+        let cornerA = try! self.pointAt(spot: speck)
         let dirPairA = flat.resolveRelative(pip: cornerA)
         let vertA = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairA.perp)
         
-        let cornerB = try! self.pointAt(u: 1.0, v: 0.0)
+        speck = PointSurf(u: 1.0, v: 0.0)
+        let cornerB = try! self.pointAt(spot: speck)
         let dirPairB = flat.resolveRelative(pip: cornerB)
         let vertB = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairB.perp)
         
-        let cornerC = try! self.pointAt(u: 1.0, v: 1.0)
+        speck = PointSurf(u: 1.0, v: 1.0)
+        let cornerC = try! self.pointAt(spot: speck)
         let dirPairC = flat.resolveRelative(pip: cornerC)
         let vertC = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairC.perp)
         
-        let cornerD = try! self.pointAt(u: 0.0, v: 1.0)
+        speck = PointSurf(u: 0.0, v: 1.0)
+        let cornerD = try! self.pointAt(spot: speck)
         let dirPairD = flat.resolveRelative(pip: cornerD)
         let vertD = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairD.perp)
         
@@ -1172,7 +1188,7 @@ open class Bicubic   {
     ///   - planeOut:  Vector perpendicular to the section cut
     ///   - hop:  Ratio of fillet radius used as an offset for this iteration
     /// - Returns: A tuple containing a Point3D and its distance to the filletCL
-    public static func offsetNormalInter(playingField: Bicubic, filletCL: Line, filletRad: Double, sideways: Vector3D, planeOut: Vector3D, hop: Double) -> (spot: Point3D, spotU: Double, spotV: Double, dist: Double, filletCtr: Point3D)   {
+    public static func offsetNormalInter(playingField: Bicubic, filletCL: Line, filletRad: Double, sideways: Vector3D, planeOut: Vector3D, hop: Double) -> (spot: Point3D, spotSurf: PointSurf, dist: Double, filletCtr: Point3D)   {
         
         let jump = sideways * (filletRad * hop)
         
@@ -1186,7 +1202,7 @@ open class Bicubic   {
         
         
         // Remove any out-of-plane component that the normal might have
-        let tiltBeam = try! playingField.normalAt(u: maybeTan.param1, v: maybeTan.param2)   // Not necessarily in-plane
+        let tiltBeam = try! playingField.normalAt(spot: maybeTan.spotSurf)   // Not necessarily in-plane
         
         let gravelMag = Vector3D.dotProduct(lhs: tiltBeam, rhs: planeOut)
         //            print("G: " + String(format: "%.3f", gravelMag))
@@ -1216,8 +1232,8 @@ open class Bicubic   {
         }
         
         dennison *= factor   // The goal is to find this positive and equal to the fillet radius
-        
-        return(maybeTan.spot, maybeTan.param1, maybeTan.param2, dennison, slash)
+                
+        return(maybeTan.spot, maybeTan.spotSurf, dennison, slash)
     }
 
 }

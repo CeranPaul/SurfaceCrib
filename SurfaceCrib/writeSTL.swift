@@ -1,9 +1,9 @@
 //
 //  writeSTL.swift
-//  CornerTri
+//  SurfaceCrib
 //
-//  Created by Paul Hollingshead on 8/31/15.
-//  Copyright © 2015 Ceran Digital Media. All rights reserved.
+//  Created by Paul on 8/31/15.
+//  Copyright © 2018 Ceran Digital Media. All rights reserved.
 //
 
 import Foundation

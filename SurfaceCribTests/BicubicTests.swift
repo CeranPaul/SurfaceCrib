@@ -1,9 +1,9 @@
 //
 //  BicubicTests.swift
-//  SingleLab
+//  SurfaceCrib
 //
-//  Created by Paul Hollingshead on 5/25/17.
-//  Copyright © 2017 Ceran Digital Media. All rights reserved.
+//  Created by Paul on 5/25/17.
+//  Copyright © 2018 Ceran Digital Media. All rights reserved.  See LICENSE.md
 //
 
 import XCTest
@@ -153,32 +153,38 @@ class BicubicTests: XCTestCase {
     func testPointAt()   {
     
         let target00 = Point3D(x: -1.5, y: -1.75, z: 0.95)
-        let fred00 = try! convex!.pointAt(u: 0.0, v: 0.0)
+        var speck = PointSurf(u: 0.0, v: 0.0)
+        let fred00 = try! convex!.pointAt(spot: speck)
         XCTAssertEqual(fred00, target00)
         
         let target01 = Point3D(x: -1.5, y: 1.75, z: 2.15)
-        let fred01 = try! convex!.pointAt(u: 0.0, v: 1.0)
+        speck = PointSurf(u: 0.0, v: 1.0)
+        let fred01 = try! convex!.pointAt(spot: speck)
         XCTAssertEqual(fred01, target01)
         
         let target10 = Point3D(x: 2.5, y: -1.75, z: 2.65)
-        let fred10 = try! convex!.pointAt(u: 1.0, v: 0.0)
+        speck = PointSurf(u: 1.0, v: 0.0)
+        let fred10 = try! convex!.pointAt(spot: speck)
         XCTAssertEqual(fred10, target10)
         
         let target11 = Point3D(x: 2.5, y: 1.75, z: 3.85)
-        let fred11 = try! convex!.pointAt(u: 1.0, v: 1.0)
+        speck = PointSurf(u: 1.0, v: 1.0)
+        let fred11 = try! convex!.pointAt(spot: speck)
         XCTAssertEqual(fred11, target11)
         
     }
     
     func testPartU() {
         
-        let fred = convex!.partU(u: 0.0, v: 0.0)
+        var speck = PointSurf(u: 0.0, v: 0.0)
+        let fred = try! convex!.partU(spot: speck)
         
         let outX = Vector3D(i: 4.0, j: 0.0, k: -0.8)
         
         XCTAssertEqual(fred, outX)
         
-        let fred2 = convex!.partU(u: 1.0, v: 0.0)
+        speck = PointSurf(u: 1.0, v: 0.0)
+        let fred2 = try! convex!.partU(spot: speck)
         
         let outX2 = Vector3D(i: 4.0, j: 0.0, k: 4.2)
         
@@ -188,13 +194,14 @@ class BicubicTests: XCTestCase {
     
     func testPartV() {
         
-        let fred = convex!.partV(u: 0.0, v: 0.0)
+        let speck = PointSurf(u: 0.0, v: 0.0)
+        let fred = try! convex!.partV(spot: speck)
         
         let outX = Vector3D(i: 0.0, j: 3.5, k: -1.0)
         
         XCTAssertEqual(fred, outX)
         
-        let fred2 = convex!.partV(u: 0.0, v: 0.0)
+        let fred2 = try! convex!.partV(spot: speck)
         
         let outX2 = Vector3D(i: 0.0, j: 3.5, k: -1.0)
         
@@ -203,7 +210,8 @@ class BicubicTests: XCTestCase {
     
     func testNormal()   {
         
-        let quill = try! convex!.normalAt(u: 0.0, v: 0.0)
+        let speck = PointSurf(u: 0.0, v: 0.0)
+        let quill = try! convex!.normalAt(spot: speck)
         
         let target = Vector3D(i: 0.18884, j: 0.26977, k: 0.94422)
         

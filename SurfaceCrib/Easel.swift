@@ -1,9 +1,9 @@
 //
 //  Easel.swift
-//  SingleLab
+//  SurfaceCrib
 //
 //  Created by Paul on 1/8/17.
-//  Copyright © 2017 Ceran Digital Media.  See LICENSE.md
+//  Copyright © 2018 Ceran Digital Media.  See LICENSE.md
 //
 
 import UIKit

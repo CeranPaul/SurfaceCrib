@@ -3,7 +3,7 @@
 //  SurfaceCrib
 //
 //  Created by Paul on 12/14/17.
-//  Copyright © 2017 Ceran Digital Media. All rights reserved.
+//  Copyright © 2017 Ceran Digital Media. All rights reserved.  See LICENSE.md
 //
 
 import Foundation

@@ -8,8 +8,8 @@
 
 import Foundation
 
-/// Document the topology across a triangle edge
-/// Should this class be collocated with the definition of "Mesh"?
+/// Document the topology across a triangle edge.
+/// Should this class be collocated with the definition of "Mesh"?.
 public struct EdgeShare: Hashable   {
     
     public var commonA: Point3D   // No significance to the ordering

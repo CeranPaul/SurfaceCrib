@@ -22,14 +22,14 @@ class Sculpt   {
     var ptCloud = Mesh()
     
     /// Bounding area for play
-    var arena = CGRect(x: -2.0, y: -2.0, width: 4.0, height: 4.0)   // Will get replaced in "init"
+    var arena = CGRect(x: -3.0, y: -3.0, width: 6.0, height: 6.0)   // Will get replaced in "init"
     
     /// Rotation center
     var rotCenter = Point3D(x: 0.0, y: 0.0, z: 0.0)   // Will get replaced in "init"
     
     init()   {
         
-        /// Build sample surface
+        /// Sample surface
         let board = generateSurf1()
         
         let brick = board.getExtent()
@@ -38,10 +38,10 @@ class Sculpt   {
         
         let stretch = brick.getLongest()
         
-        arena = CGRect(x: rotCenter.x - stretch / 2.0, y: rotCenter.y - stretch / 2.0, width: stretch, height: stretch)
+        arena = CGRect(x: rotCenter.x - stretch / 1.5, y: rotCenter.y - stretch / 1.5, width: stretch * 1.333, height: stretch * 1.333)
         
         
-        /// A set of isoparametric curves   There should a set of "PenTypes" to control surface display.
+        /// A set of isoparametric curves.   There should a set of "PenTypes" to control surface display.
         /// Static functions in the surface called by "Easel" to generate geometry.
         let iso = Bicubic.stripes(panel: board, count: 4)
         displayLines.append(contentsOf: iso)
@@ -89,7 +89,7 @@ class Sculpt   {
         
            // Generate and display quills
            // This should become a static function of Bicubic
-        let quillShow = false
+        let quillShow = true
         
         if quillShow   {
             
@@ -97,8 +97,9 @@ class Sculpt   {
                 
                 for myV in stride(from: 0.0, to: 1.0001, by: 0.2)   {
                     
-                    let root = try! board.pointAt(u: myU, v: myV)
-                    let dir = try! board.normalAt(u: myU, v: myV)
+                    let pip = PointSurf(u: myU, v: myV)
+                    let root = try! board.pointAt(spot: pip)
+                    let dir = try! board.normalAt(spot: pip)
                     
                     let tip = root.offset(jump: dir)
                     
@@ -166,8 +167,10 @@ class Sculpt   {
         let span4 = dev3!
         let dev4 = board.crossing(sheet: sheet, span: span4, inU: true, fixedParam: fixedV)
         
-        let hip = try! board.pointAt(u: (dev4?.lowerBound)!, v: fixedV)
-        let hop = try! board.pointAt(u: (dev4?.upperBound)!, v: fixedV)
+        var speck = PointSurf(u: (dev4?.lowerBound)!, v: fixedV)
+        let hip = try! board.pointAt(spot: speck)
+        speck = PointSurf(u: (dev4?.upperBound)!, v: fixedV)
+        let hop = try! board.pointAt(spot: speck)
         
         let sep = Point3D.dist(pt1: hip, pt2: hop)
         
@@ -179,15 +182,18 @@ class Sculpt   {
 
         for jump in stride(from: 0.0, through: 0.9, by: 0.10)   {
 
-            let anchorA = try! board.pointAt(u: jump, v: steadyV)
-            let anchorB = try! board.pointAt(u: jump + 0.1, v: steadyV)
+            let dotA = PointSurf(u: jump, v: steadyV)
+            let anchorA = try! board.pointAt(spot: dotA)
+            let dotB = PointSurf(u: jump + 0.1, v: steadyV)
+            let anchorB = try! board.pointAt(spot: dotB)
 
             let wire = try! LineSeg(end1: anchorA, end2: anchorB)
 
             var deviation = 0.0
 
             for step in stride(from: jump + 0.01, through: jump + 0.09, by: 0.01)   {
-                let pip = try! board.pointAt(u: step, v: steadyV)
+                let speck = PointSurf(u: step, v: steadyV)
+                let pip = try! board.pointAt(spot: speck)
 
                 let diffs = wire.resolveRelative(speck: pip)
 
@@ -740,12 +746,12 @@ class Sculpt   {
                 g2 = 0.97
             }
             
-            
-            let pip = try! surf.pointAt(u: u, v: g2)
+            let speck = PointSurf(u: u, v: g2)
+            let pip = try! surf.pointAt(spot: speck)
             upperEdge.append(pip)
             
             // Create a point offset inward by 'thick'
-            let norm = try! surf.normalAt(u: u, v: g2)
+            let norm = try! surf.normalAt(spot: speck)
             let inwards = norm.reverse()
             
             let inset = inwards * thick

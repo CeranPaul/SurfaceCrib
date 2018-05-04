@@ -1,15 +1,15 @@
 //
 //  OrthoVol.swift
-//  SketchCurves
+//  SurfaceCrib
 //
 //  Created by Paul on 10/30/15.
-//  Copyright © 2017 Ceran Digital Media. All rights reserved.  See LICENSE.md
+//  Copyright © 2018 Ceran Digital Media. All rights reserved.  See LICENSE.md
 //
 
 import Foundation
 
 /// A 'brick' aligned with the coordinate axes to envelop some geometry.  Useful for scaling and intersections.
-/// Does not allow 0.0 thicknesses
+/// Avoids 0.0 thicknesses
 public struct OrthoVol   {
     
     fileprivate var rangeX: ClosedRange<Double>
@@ -17,8 +17,8 @@ public struct OrthoVol   {
     fileprivate var rangeZ: ClosedRange<Double>
     
     
-    /// Rudimentary init
-    /// Does not check for positive ranges
+    /// Rudimentary init.
+    /// Does not check for positive ranges.
     public init(minX : Double, maxX: Double, minY: Double, maxY: Double, minZ: Double, maxZ: Double)   {
         
         let deltaX = maxX - minX
@@ -125,6 +125,28 @@ public struct OrthoVol   {
         
     }
     
+    
+    /// Find the enclosing volume for an Array of points
+    init(spots: [Point3D]) {
+        
+        let xValues = spots.map( { $0.x } )
+        let yValues = spots.map( { $0.y } )
+        let zValues = spots.map( { $0.z } )
+        
+        let leastX = xValues.min()!
+        let mostX = xValues.max()!
+        
+        let leastY = yValues.min()!
+        let mostY = yValues.max()!
+        
+        let leastZ = zValues.min()!
+        let mostZ = zValues.max()!
+        
+        rangeX = ClosedRange(uncheckedBounds: (lower: leastX, upper: mostX))
+        rangeY = ClosedRange(uncheckedBounds: (lower: leastY, upper: mostY))
+        rangeZ = ClosedRange(uncheckedBounds: (lower: leastZ, upper: mostZ))
+        
+    }
     
     /// Simple getter for starting corner
     func  getOrigin() -> Point3D  {

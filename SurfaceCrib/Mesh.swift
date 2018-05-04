@@ -8,9 +8,9 @@
 
 import Foundation
 
-/// Collection of Triangles with construction and checking tools
-/// Could represent only a portion of an object
-/// Will want to report the collection of unpaired edges
+/// Collection of Triangles with construction and checking tools.
+/// Could represent only a portion of an object.
+/// Will want to report the collection of unpaired edges.
 public class Mesh   {
     
     /// Simple collection of flakes to define a (partial) boundary of a volume

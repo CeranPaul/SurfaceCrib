@@ -1,14 +1,14 @@
 //
 //  LineSeg.swift
-//  SketchCurves
+//  SurfaceCrib
 //
 //  Created by Paul on 10/28/15.
-//  Copyright © 2016 Ceran Digital Media. All rights reserved.  See LICENSE.md
+//  Copyright © 2018 Ceran Digital Media. All rights reserved.  See LICENSE.md
 //
 
 import UIKit
 
-/// A wire between two points
+/// A wire between two points.
 public class LineSeg: PenCurve {    // Can this be a struct, instead?
     
     // End points
