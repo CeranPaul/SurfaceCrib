@@ -79,6 +79,8 @@
 		811E41901FFC681C00E1250A /* ParallelPlanesError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E413E1FFB155200E1250A /* ParallelPlanesError.swift */; };
 		811E41911FFC682200E1250A /* TriangleError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E416D1FFB1D2F00E1250A /* TriangleError.swift */; };
 		811E41921FFC683700E1250A /* Plane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E41461FFB155300E1250A /* Plane.swift */; };
+		81483C8120A4C13B00D1D852 /* ExtentUV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81483C8020A4C13B00D1D852 /* ExtentUV.swift */; };
+		81483C8220A4C13B00D1D852 /* ExtentUV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81483C8020A4C13B00D1D852 /* ExtentUV.swift */; };
 		81A87D9C209BD215003FF3ED /* VectorSurf.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A87D9B209BD215003FF3ED /* VectorSurf.swift */; };
 		81A87D9D209BD215003FF3ED /* VectorSurf.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A87D9B209BD215003FF3ED /* VectorSurf.swift */; };
 		81A87D9E209BECF6003FF3ED /* Cubic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E41291FFB153400E1250A /* Cubic.swift */; };
@@ -149,6 +151,7 @@
 		811E416F1FFB204900E1250A /* EdgeOverflowError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EdgeOverflowError.swift; sourceTree = "<group>"; };
 		811E41711FFB26EF00E1250A /* BicubicTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BicubicTests.swift; sourceTree = "<group>"; };
 		811E41741FFB4E8800E1250A /* SurfTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurfTypes.swift; sourceTree = "<group>"; };
+		81483C8020A4C13B00D1D852 /* ExtentUV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtentUV.swift; sourceTree = "<group>"; };
 		81A87D9B209BD215003FF3ED /* VectorSurf.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VectorSurf.swift; sourceTree = "<group>"; };
 		81A87E3320A37C68003FF3ED /* ParameterRangeErrorUno.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParameterRangeErrorUno.swift; sourceTree = "<group>"; };
 		81A87E3520A37C84003FF3ED /* CurveUV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveUV.swift; sourceTree = "<group>"; };
@@ -222,6 +225,7 @@
 				811E410E1FFB130200E1250A /* Assets.xcassets */,
 				811E41101FFB130200E1250A /* LaunchScreen.storyboard */,
 				811E41131FFB130200E1250A /* Info.plist */,
+				81483C8020A4C13B00D1D852 /* ExtentUV.swift */,
 			);
 			path = SurfaceCrib;
 			sourceTree = "<group>";
@@ -393,6 +397,7 @@
 				811E41311FFB153500E1250A /* Cubic.swift in Sources */,
 				811E41541FFB155400E1250A /* PointSurf.swift in Sources */,
 				811E41641FFB15F500E1250A /* Sculpt.swift in Sources */,
+				81483C8120A4C13B00D1D852 /* ExtentUV.swift in Sources */,
 				811E412F1FFB153500E1250A /* Bicubic.swift in Sources */,
 				811E41751FFB4E8800E1250A /* SurfTypes.swift in Sources */,
 				811E415A1FFB155400E1250A /* OrthoVol.swift in Sources */,
@@ -447,6 +452,7 @@
 				811E41891FFC67E500E1250A /* CoincidentPlanesError.swift in Sources */,
 				811E417D1FFC66F800E1250A /* Line.swift in Sources */,
 				81A87D9D209BD215003FF3ED /* VectorSurf.swift in Sources */,
+				81483C8220A4C13B00D1D852 /* ExtentUV.swift in Sources */,
 				81A87D9E209BECF6003FF3ED /* Cubic.swift in Sources */,
 				811E41821FFC676100E1250A /* SurfaceInputError.swift in Sources */,
 			);
