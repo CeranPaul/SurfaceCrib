@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import simd
 
 /// Curve used on a parametric surface
 public class CubicUV   {
@@ -66,6 +67,58 @@ public class CubicUV   {
         self.residentSurf = surf
     }
     
+    /// Build from four points
+    init(alpha: PointSurf, beta: PointSurf, betaFraction: Double, gamma: PointSurf, gammaFraction: Double, delta: PointSurf, surf: Bicubic)   {
+        
+           // Rearrange coordinates into an array
+        let rowU = double4(alpha.u, beta.u, gamma.u, delta.u)
+        let rowV = double4(alpha.v, beta.v, gamma.v, delta.v)
+        
+           // Build a 4x4 of parameter values to various powers
+        let row1 = double4(0.0, 0.0, 0.0, 1.0)
+        
+        let betaFraction2 = betaFraction * betaFraction
+        let row2 = double4(betaFraction * betaFraction2, betaFraction2, betaFraction, 1.0)
+        
+        let gammaFraction2 = gammaFraction * gammaFraction
+        let row3 = double4(gammaFraction * gammaFraction2, gammaFraction2, gammaFraction, 1.0)
+        
+        let row4 = double4(1.0, 1.0, 1.0, 1.0)
+        
+        
+        /// Intermediate collection for building the matrix
+        var partial: [double4]
+        partial = [row1, row2, row3, row4]
+        
+        /// Matrix of t from several points raised to various powers
+        let tPowers = double4x4(partial)
+        
+        let trans = tPowers.transpose   // simd representation is different than what I had in college
+        
+        
+        /// Inverse of the above matrix
+        let nvers = trans.inverse
+        
+        let coeffU = nvers * rowU
+        let coeffV = nvers * rowV
+        
+        
+        // Set the curve coefficients
+        self.au = coeffU[0]
+        self.bu = coeffU[1]
+        self.cu = coeffU[2]
+        self.du = coeffU[3]
+        self.av = coeffV[0]
+        self.bv = coeffV[1]
+        self.cv = coeffV[2]
+        self.dv = coeffV[3]
+        
+        
+        self.range = ClosedRange<Double>(uncheckedBounds: (lower: 0.0, upper: 1.0))
+        
+        self.residentSurf = surf
+    }
+    
     
     /// Modifies the range
     public func changeUpperBound(freshUpper: Double) throws -> Void   {
@@ -102,7 +155,30 @@ public class CubicUV   {
     }
     
     
-    /// Divide the curve while maintaining a maximum allowable crown
+    /// Find an orthogonal box that surrounds the curve.
+    /// - Returns: Rectangular box in UV
+    public func getExtent() -> ExtentUV   {
+        
+        let pieces = 120
+        
+        let step = (self.range.upperBound - self.range.lowerBound) / Double(pieces)
+        
+        var dots = [PointSurf]()
+        
+        for g in 0...pieces   {
+            
+            let param = self.range.lowerBound + Double(g) * step
+            let plop = try! self.pointAt(t: param)
+            dots.append(plop)
+            
+        }
+        
+        let box = ExtentUV(spots: dots)
+        return box
+    }
+    
+    
+    /// Divide the curve while maintaining a maximum allowable crown.
     /// - Returns: Array of Point3D
     public func split(allowableCrown: Double) -> [Point3D]   {
         

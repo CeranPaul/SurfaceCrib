@@ -177,7 +177,7 @@ class Sculpt   {
         
         let smear = CubicUV(ptA: alpha, slopeA: slope1, ptB: beta, slopeB: slope2, surf: board)
         
-        let dots = smear.split(allowableCrown: 0.003)
+        var dots = smear.split(allowableCrown: 0.003)
         
         for g in 1..<dots.count   {
             let wire = try! LineSeg(end1: dots[g - 1], end2: dots[g])
@@ -185,6 +185,24 @@ class Sculpt   {
         }
 
         
+        let ptA = PointSurf(u: 0.10, v: 0.55)
+        let ptB = PointSurf(u: 0.24, v: 0.70)
+        let fractionB = 0.34
+        let ptC = PointSurf(u: 0.60, v: 0.82)
+        let fractionC = 0.68
+
+        let ptD = PointSurf(u: 0.70, v: 0.97)
+
+        let arch = CubicUV(alpha: ptA, beta: ptB, betaFraction: fractionB, gamma: ptC, gammaFraction: fractionC, delta: ptD, surf: board)
+        
+        dots = arch.split(allowableCrown: 0.003)
+        
+        for g in 1..<dots.count   {
+            let wire = try! LineSeg(end1: dots[g - 1], end2: dots[g])
+            displayLines.append(wire)
+        }
+        
+
     }   // End of func init
     
     
