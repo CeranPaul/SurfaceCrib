@@ -233,4 +233,26 @@ class BicubicTests: XCTestCase {
         XCTAssertEqual(trial.spot, target)
     }
     
+    func testisEdgesSplit()   {
+        
+        var hub = Point3D(x: 2.0, y: -1.5, z: 0.5)
+        var arrow = Vector3D(i: 0.85, j: 0.25, k: 0.0)
+        arrow.normalize()
+        
+        let bladeA = try! Plane(spot: hub, arrow: arrow)
+        
+        let flagA = convex!.isEdgesSplit(flat: bladeA)
+        
+        XCTAssert(flagA)
+        
+        
+        hub = Point3D(x: -4.0, y: -1.5, z: 0.5)
+        let bladeB = try! Plane(spot: hub, arrow: arrow)
+        
+        let flagB = convex!.isEdgesSplit(flat: bladeB)
+        
+        XCTAssertFalse(flagB)
+        
+    }
+    
 }

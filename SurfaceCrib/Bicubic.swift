@@ -1065,16 +1065,16 @@ open class Bicubic   {
     }
     
     
-    /// Find the range of an iso-parameter curve where it crosses a plane.
+    /// Find the range of an iso-parametric point pair where it crosses a plane.
     /// This is part of finding the intersection - by successively refining the interval.
     /// Assumes that there is only one intersection.
     /// - Parameters:
     ///   - sheet:  The Plane to be used in testing for a crossing.
-    ///   - span:  A range of a single surface parameter in which to hunt.
+    ///   - span:  A ClosedRange<Double> of a single surface parameter in which to hunt.
     ///   - inU:  Whether the trial range is in u, or in v.
     ///   - fixedParam:  Value for the invariant parameter.
     /// - Returns: A smaller ClosedRange<Double>
-    func crossing(sheet: Plane, span: ClosedRange<Double>, inU: Bool, fixedParam: Double) -> ClosedRange<Double>?   {
+    func crossing(blade: Plane, span: ClosedRange<Double>, inU: Bool, fixedParam: Double) -> ClosedRange<Double>?   {
         
         /// Number of pieces to divide range
         let chunks = 5
@@ -1094,7 +1094,7 @@ open class Bicubic   {
         }
         
         
-        let lowerSep = sheet.resolveRelative(pip: lowerPoint)
+        let lowerSep = blade.resolveRelative(pip: lowerPoint)
         var refArrow = lowerSep.perp
         
         // Actually should do something different here if you end up with a zero vector
@@ -1119,7 +1119,7 @@ open class Bicubic   {
             }
             
             // See which side of 'sheet' it is on
-            let runningSep = sheet.resolveRelative(pip: runningPoint)
+            let runningSep = blade.resolveRelative(pip: runningPoint)
             let runningArrow = runningSep.perp
             
             /// Length of "runningArrow" when projected to the reference vector
@@ -1136,45 +1136,126 @@ open class Bicubic   {
         return nil
     }
     
-    /// Find the relationship between a plane and the four corners
-    /// This prompts a bunch of unit tests
-    /// This method is not suitable when a plane is nearly tangent to the surface
+    /// A helper for finding the intesection with a plane.
+    /// This perhaps could be private.
+    /// - Parameters:
+    ///   - blade:  The Plane to be used in testing for a crossing.
+    ///   - rangeEndA:  A PointSurf for one end of the hunting range.
+    ///   - rangeEndB:  A PointSurf for the other end of the hunting range.
+    /// - Returns: A pair of PointSurf's for a narrower range
+    public func crossing2(blade: Plane, rangeEndA: PointSurf, rangeEndB: PointSurf) -> (alpha: PointSurf, omega: PointSurf)   {
+        
+        /// Number of desired divisions for the input range
+        let chunks = 5
+        
+        /// Points defining several smaller ranges
+        let hops = PointSurf.splitSpan(pointA: rangeEndA, pointB: rangeEndB, chunks: chunks)
+        
+        for g in 1...chunks   {
+            
+            let dotA = hops[g - 1]
+            let ballA = try! self.pointAt(spot: dotA)
+            
+            let dotB = hops[g]
+            let ballB = try! self.pointAt(spot: dotB)
+            
+            let flag = blade.isOpposite(pointA: ballA, pointB: ballB)
+            
+            if flag   { return(dotA, dotB) }
+        }
+        
+        return(rangeEndA, rangeEndB)   // This indicates a problem!
+    }
+    
+    /// Finds a PointSurf on the intersection of a plane.
+    /// Assumes that the starting range is good.
+    /// - Parameters:
+    ///   - blade:  The Plane to be used in testing for a crossing.
+    ///   - rangeEndA:  A PointSurf for one end of the hunting range.
+    ///   - rangeEndB:  A PointSurf for the other end of the hunting range.
+    public func pointWithinRange(blade: Plane, rangeEndA: PointSurf, rangeEndB: PointSurf, accuracy: Double) -> PointSurf   {
+        
+        /// Separation of Point3D's for each iteration
+        var sep = accuracy * 10.0
+      
+        /// Point to be returned
+        var hip = rangeEndA
+        var hop = rangeEndB
+
+        
+        /// Counter to avoid a runaway loop
+        var backstop = 0
+        
+        while backstop < 8   {
+            
+            let refined = self.crossing2(blade: blade, rangeEndA: hip, rangeEndB: hop)
+            let speckA = try! self.pointAt(spot: refined.alpha)
+            let speckB = try! self.pointAt(spot: refined.omega)
+            sep = Point3D.dist(pt1: speckA, pt2: speckB)
+            
+            if sep < accuracy   {
+                hip = refined.alpha
+                break
+            }
+
+            hip = refined.alpha
+            hop = refined.omega
+            backstop += 1
+        }
+        
+        // This would be a good place to throw a ConvergenceError
+        return hip
+    }
+    
+    
+    /// Find the relationship between a plane and the four corners.
+    /// This method will generate false negatives when a plane is nearly tangent to the surface.
+    /// This could possibly become private, since it is probably only used for a intersection.
     /// - Parameters:
     ///   - flat:  The plane to be checked
-    /// - Returns: A flag indicating whether or not the plane intersects
-    func cornerCheck(flat: Plane) -> Bool   {
+    /// - Returns: A flag indicating whether or not the plane splits two edges
+    /// - See: 'testIsEdgesSplit' in BicubicTests
+    func isEdgesSplit(flat: Plane) -> Bool   {
         
-        /// The value to be returned
+        /// Default for value to be returned
         let flag = false
         
+        /// Find the relationship of a point to the plane's normal
+        let cornerSense: (PointSurf) -> Double = {
+            let corner = try! self.pointAt(spot: $0)
+            let dirPair = flat.resolveRelative(pip: corner)
+            return Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPair.perp)
+        }
+        
         var speck = PointSurf(u: 0.0, v: 0.0)
-        let cornerA = try! self.pointAt(spot: speck)
-        let dirPairA = flat.resolveRelative(pip: cornerA)
-        let vertA = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairA.perp)
+        let senseA = cornerSense(speck)
         
         speck = PointSurf(u: 1.0, v: 0.0)
-        let cornerB = try! self.pointAt(spot: speck)
-        let dirPairB = flat.resolveRelative(pip: cornerB)
-        let vertB = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairB.perp)
-        
+        let senseB = cornerSense(speck)
+
         speck = PointSurf(u: 1.0, v: 1.0)
-        let cornerC = try! self.pointAt(spot: speck)
-        let dirPairC = flat.resolveRelative(pip: cornerC)
-        let vertC = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairC.perp)
-        
+        let senseC = cornerSense(speck)
+
         speck = PointSurf(u: 0.0, v: 1.0)
-        let cornerD = try! self.pointAt(spot: speck)
-        let dirPairD = flat.resolveRelative(pip: cornerD)
-        let vertD = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairD.perp)
-        
+        let senseD = cornerSense(speck)
+
         /// Positive if all of the corner points are on the same side of the plane, either positive, or negative.
-        let prod = vertA * vertB * vertC * vertD
+        let prod = senseA * senseB * senseC * senseD
 
         if prod < 0.0 { return true }
         
            // Deal with the case of two positives and two negatives
-        
-        
+        let flag1 = (senseA * senseB) < 0.0
+        let flag2 = (senseA * senseC) < 0.0
+        let flag3 = (senseA * senseD) < 0.0
+        let flag4 = (senseB * senseC) < 0.0
+        let flag5 = (senseB * senseD) < 0.0
+        let flag6 = (senseC * senseD) < 0.0
+
+        if flag1  &&  flag6    { return true }
+        if flag2  &&  flag5    { return true }
+        if flag3  &&  flag4    { return true }
+
         return flag
     }
     

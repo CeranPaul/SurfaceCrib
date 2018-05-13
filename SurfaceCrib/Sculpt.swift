@@ -101,43 +101,92 @@ class Sculpt   {
         
         
            // Test the ability to find points on the intersection of the surface and a plane
-        let nexus2 = Point3D(x: 1.0, y: 1.2, z: 1.0)
-        var pole2 = Vector3D(i: 0.707, j: 0.707, k: 0.0)
+        let nexus2 = Point3D(x: 1.55, y: 1.2, z: 1.0)
+        var pole2 = Vector3D(i: 0.97, j: 0.2, k: 0.0)
         pole2.normalize()
 
         /// The cutting plane
-        let sheet = try! Plane(spot: nexus2, arrow: pole2)   // How do I choose a direction to build a coordinate system?
+        let sheet = try! Plane(spot: nexus2, arrow: pole2)
 
         
-        /// Assume some constant value for 'v'
-        let fixedV = 0.7
+        /// Collection of points for making a curve from the intersection
+        var posts = [PointSurf]()
+        
+        /// Desired accuracy for the intersection
+        let accur8 = 0.001
+        
+        for g in 0...20   {
+            
+            /// Assume some constant value for 'v'
+            let fixedV = 0.05 * Double(g)
+            
+            /// Initial value for range to check
+            let whole = ClosedRange<Double>(uncheckedBounds: (lower: 0.0, upper: 1.0))
+            
+            
+            if let refinedRange = board.crossing(blade: sheet, span: whole, inU: true, fixedParam: fixedV)   {
+            
+                /// Separation across the current parameter range
+                var sep = accur8 * 5   // A large intial value
+                
+                /// The returned intersection point
+                var hip: Point3D
+                
+                /// Point for the latest iteration
+                var speck: PointSurf
+                
+                /// Working variable for the successively narrower ranges
+                var span = refinedRange
+                
+                /// Limit to avoid a runaway loop.
+                var backstop = 0
+                
+                repeat   {
+                    
+                    /// A smaller range of parameter values
+                    let narrower = board.crossing(blade: sheet, span: span, inU: true, fixedParam: fixedV)!
+                    
+                    speck = PointSurf(u: narrower.lowerBound, v: fixedV)
+                    hip = try! board.pointAt(spot: speck)
+                    speck = PointSurf(u: narrower.upperBound, v: fixedV)
+                    let hop = try! board.pointAt(spot: speck)
+                    
+                    sep = Point3D.dist(pt1: hip, pt2: hop)
+                    
+                    span = narrower
+                    backstop += 1
+                    
+                } while sep > accur8  && backstop < 8
+                
+                posts.append(speck)   // Capture the point
+                
+//                let global = try! board.pointAt(spot: speck)
+//                let dashes = Point3D.crosshair(pip: global)   // Illustrate the intersection point
+//                displayLines.append(contentsOf: dashes)
+            }
+            
+        }
+        
+        let fence = CubicUV.buildDots(dots: posts, surf: board)
+        
+        var dots = fence.split(allowableCrown: 0.003)
+        
+        for g in 1..<dots.count   {
+            let wire = try! LineSeg(end1: dots[g - 1], end2: dots[g])
+            displayLines.append(wire)
+        }
+        
+        
+        let hyar = PointSurf(u: 0.60, v: 0.50)
+        let yonder = PointSurf(u: 0.90, v: 0.60)
+        
+        let junct = board.pointWithinRange(blade: sheet, rangeEndA: hyar, rangeEndB: yonder, accuracy: 0.001)
 
-        /// Initial value for range to check
-        let span = ClosedRange<Double>(uncheckedBounds: (lower: 0.0, upper: 1.0))
+        let global = try! board.pointAt(spot: junct)
+        let hairs = Point3D.crosshair(pip: global)   // Illustrate the intersection point
+        displayLines.append(contentsOf: hairs)
 
-        /// A smaller range of parameter values
-        let dev = board.crossing(sheet: sheet, span: span, inU: true, fixedParam: fixedV)  // Perhaps the return value only needs to be an
-                                                                                           // optional for the first run
         
-        let span2 = dev!
-        let dev2 = board.crossing(sheet: sheet, span: span2, inU: true, fixedParam: fixedV)
-
-        let span3 = dev2!
-        let dev3 = board.crossing(sheet: sheet, span: span3, inU: true, fixedParam: fixedV)
-        
-        let span4 = dev3!
-        let dev4 = board.crossing(sheet: sheet, span: span4, inU: true, fixedParam: fixedV)
-        
-        var speck = PointSurf(u: (dev4?.lowerBound)!, v: fixedV)
-        let hip = try! board.pointAt(spot: speck)
-        speck = PointSurf(u: (dev4?.upperBound)!, v: fixedV)
-        let hop = try! board.pointAt(spot: speck)
-        
-        let sep = Point3D.dist(pt1: hip, pt2: hop)
-        
-        print(String(sep) + "   " + String(describing: dev4?.lowerBound) + "   " + String(describing: dev4?.upperBound))
-        
-
         // Find the deviation over a delta u of 0.01.  Why is that worthwhile to know?
         let steadyV = 0.3
 
@@ -169,6 +218,8 @@ class Sculpt   {
             // print(deviation)
         }
 
+        
+        
         let alpha = PointSurf(u: 0.30, v: 0.20)
         let slope1 = VectorSurf(i: 1.0, j: 0.0)
         
@@ -177,7 +228,7 @@ class Sculpt   {
         
         let smear = CubicUV(ptA: alpha, slopeA: slope1, ptB: beta, slopeB: slope2, surf: board)
         
-        var dots = smear.split(allowableCrown: 0.003)
+        dots = smear.split(allowableCrown: 0.003)
         
         for g in 1..<dots.count   {
             let wire = try! LineSeg(end1: dots[g - 1], end2: dots[g])

@@ -41,4 +41,33 @@ public struct PointSurf   {
         return freshPoint
     }
     
+    
+    public static func splitSpan(pointA: PointSurf, pointB: PointSurf, chunks: Int = 5) -> [PointSurf]   {
+        
+        /// The array to be returned
+        var stairs = [PointSurf]()
+        
+        stairs.append(pointA)
+        
+        let deltaU = pointB.u - pointA.u
+        let deltaV = pointB.v - pointA.v
+        
+        let stepU = deltaU / Double(chunks)
+        let stepV = deltaV / Double(chunks)
+
+        for g in 1..<chunks   {
+            
+            let freshU = pointA.u + Double(g) * stepU
+            let freshV = pointA.v + Double(g) * stepV
+            
+            let waypoint = PointSurf(u: freshU, v: freshV)
+            
+            stairs.append(waypoint)
+        }
+        
+        stairs.append(pointB)
+        
+        return stairs
+    }
+    
 }
