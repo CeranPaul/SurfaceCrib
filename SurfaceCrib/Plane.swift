@@ -91,6 +91,25 @@ public struct Plane   {
         return (inPlane, perp)
     }
     
+    /// Test for points being on opposite sides.
+    /// This needs to be added back into SketchGen.
+    /// - Parameters:
+    ///   - pointA:  One point of interest
+    ///   - pointB:  Other point of interest
+    /// - Returns: Simple flag
+    /// - Warning: Probably screws up if either point is on the plane.
+    public func isOpposite(pointA: Point3D, pointB: Point3D) -> Bool   {
+        
+        let vecA = resolveRelative(pip: pointA)
+        let senseA = Vector3D.dotProduct(lhs: vecA.perp, rhs: self.getNormal())
+        let vecB = resolveRelative(pip: pointB)
+        let senseB = Vector3D.dotProduct(lhs: vecB.perp, rhs: self.getNormal())
+
+        let flag = (senseA * senseB) < 0.0
+        
+        return flag
+    }
+    
     
     /// Check to see that the line direction is perpendicular to the normal
     /// - Parameters:

@@ -120,6 +120,51 @@ public class CubicUV   {
     }
     
     
+    /// Build a curve from an Array of points
+    public static func buildDots(dots: [PointSurf], surf: Bicubic) -> CubicUV  {
+        
+        var overallLength = 0.0
+        
+        for g in 1..<dots.count   {
+            
+            let hither = try! surf.pointAt(spot: dots[g - 1])
+            let yon = try! surf.pointAt(spot: dots[g])
+            overallLength += Point3D.dist(pt1: hither, pt2: yon)
+        }
+        
+        let act2 = dots.count / 3
+        let act3 = dots.count * 2 / 3
+        
+        var act1Length = 0.0
+        
+        for g in 1..<act2   {
+            
+            let hither = try! surf.pointAt(spot: dots[g - 1])
+            let yon = try! surf.pointAt(spot: dots[g])
+            act1Length += Point3D.dist(pt1: hither, pt2: yon)
+        }
+        
+        let fraction1 = act1Length / overallLength
+        
+        
+        var act2Length = act1Length
+        
+        for g in act2..<act3   {
+            
+            let hither = try! surf.pointAt(spot: dots[g - 1])
+            let yon = try! surf.pointAt(spot: dots[g])
+            act2Length += Point3D.dist(pt1: hither, pt2: yon)
+        }
+
+        let fraction2 = act2Length / overallLength
+        
+
+        let swoosh = CubicUV.init(alpha: dots.first!, beta: dots[act2], betaFraction: fraction1, gamma: dots[act3], gammaFraction: fraction2, delta: dots.last!, surf: surf)
+        
+        return swoosh
+    }
+    
+    
     /// Modifies the range
     public func changeUpperBound(freshUpper: Double) throws -> Void   {
         
@@ -145,12 +190,42 @@ public class CubicUV   {
         
         guard self.range.contains(t) else { throw ParameterRangeErrorUno(parA: t) }
         
+        /// Gate for filtering numerical errors
+        let precision = 0.00001
+        
         let t2 = t * t
         let t3 = t2 * t
         
-        let myU = self.au * t3 + self.bu * t2 + self.cu * t + self.du
-        let myV = self.av * t3 + self.bv * t2 + self.cv * t + self.dv
+        var myU = self.au * t3 + self.bu * t2 + self.cu * t + self.du
+        var myV = self.av * t3 + self.bv * t2 + self.cv * t + self.dv
         
+        
+           // Catch and throw out any small numerical errors
+        if myU < 0.0   {
+            if abs(myU) < precision   {
+                myU = 0.0
+            }  else  { throw ParameterRangeErrorDos(parA: myU, parB: myV) }
+        }
+        
+        if myU > 1.0   {
+            if (myU - 1.0) < precision   {
+                myU = 1.0
+            }  else  { throw ParameterRangeErrorDos(parA: myU, parB: myV) }
+        }
+
+        if myV < 0.0   {
+            if abs(myV) < precision   {
+                myV = 0.0
+            }  else  { throw ParameterRangeErrorDos(parA: myU, parB: myV) }
+        }
+        
+        if myV > 1.0   {
+            if (myV - 1.0) < precision   {
+                myV = 1.0
+            }  else  { throw ParameterRangeErrorDos(parA: myU, parB: myV) }
+        }
+        
+
         return PointSurf(u: myU, v: myV)
     }
     
@@ -197,7 +272,13 @@ public class CubicUV   {
         
         let indices = [Int](0...slices)
         let tees = indices.map( { Double($0) * step} )
+        
+//        let badTees = tees.filter { $0 > 1.0 }
         let spots = tees.map( { try! self.pointAt(t: $0) } )
+        
+//        let badSpotsU = spots.filter { $0.u > 1.0 }
+//        let badSpotsV = spots.filter { $0.v > 1.0 }
+
         
         /// Points along the curve
         let dots = spots.map( { try! residentSurf.pointAt(spot: $0) } )

@@ -27,6 +27,7 @@ class Sculpt   {
     /// Rotation center
     var rotCenter = Point3D(x: 0.0, y: 0.0, z: 0.0)   // Will get replaced in "init"
     
+    
     init()   {
         
         /// Sample surface
@@ -42,35 +43,9 @@ class Sculpt   {
         
         
         /// A set of isoparametric curves.   There should a set of "PenTypes" to control surface display.
-        /// Static functions in the surface called by "Easel" to generate geometry.
         let iso = Bicubic.stripes(panel: board, count: 4)
         displayLines.append(contentsOf: iso)
         
-        
-        
-           // Generate and display quills
-           // This should become a static function of Bicubic
-        let quillShow = false
-        
-        if quillShow   {
-            
-            for myU in stride(from: 0.0, to: 1.0001, by: 0.2)   {
-                
-                for myV in stride(from: 0.0, to: 1.0001, by: 0.2)   {
-                    
-                    let pip = PointSurf(u: myU, v: myV)
-                    let root = try! board.pointAt(spot: pip)
-                    let dir = try! board.normalAt(spot: pip)
-                    
-                    let tip = root.offset(jump: dir)
-                    
-                    let quill = try! LineSeg(end1: root, end2: tip)
-                    displayLines.append(quill)
-                    
-                }  // Inner loop
-            }   // Outer loop
-            
-        }   // End of if statement
         
         
            // Show the intersection of a line with the surface
@@ -100,75 +75,32 @@ class Sculpt   {
         displayLines.append(contentsOf: dashes)
         
         
-           // Test the ability to find points on the intersection of the surface and a plane
-        let nexus2 = Point3D(x: 1.0, y: 1.2, z: 1.0)
-        var pole2 = Vector3D(i: 0.707, j: 0.707, k: 0.0)
+        
+           // Demonstrate the ability to build a curve on the intersection of the surface and a plane
+//        let nexus2 = Point3D(x: 2.45, y: 1.2, z: 1.0)
+//        var pole2 = Vector3D(i: 0.97, j: -0.20, k: 0.0)
+        let nexus2 = Point3D(x: 2.05, y: 1.2, z: 1.0)
+        var pole2 = Vector3D(i: -0.08, j: 0.97, k: 0.0)
         pole2.normalize()
 
         /// The cutting plane
-        let sheet = try! Plane(spot: nexus2, arrow: pole2)   // How do I choose a direction to build a coordinate system?
+        let sheet = try! Plane(spot: nexus2, arrow: pole2)
 
         
-        /// Assume some constant value for 'v'
-        let fixedV = 0.7
-
-        /// Initial value for range to check
-        let span = ClosedRange<Double>(uncheckedBounds: (lower: 0.0, upper: 1.0))
-
-        /// A smaller range of parameter values
-        let dev = board.crossing(sheet: sheet, span: span, inU: true, fixedParam: fixedV)  // Perhaps the return value only needs to be an
-                                                                                           // optional for the first run
-        
-        let span2 = dev!
-        let dev2 = board.crossing(sheet: sheet, span: span2, inU: true, fixedParam: fixedV)
-
-        let span3 = dev2!
-        let dev3 = board.crossing(sheet: sheet, span: span3, inU: true, fixedParam: fixedV)
-        
-        let span4 = dev3!
-        let dev4 = board.crossing(sheet: sheet, span: span4, inU: true, fixedParam: fixedV)
-        
-        var speck = PointSurf(u: (dev4?.lowerBound)!, v: fixedV)
-        let hip = try! board.pointAt(spot: speck)
-        speck = PointSurf(u: (dev4?.upperBound)!, v: fixedV)
-        let hop = try! board.pointAt(spot: speck)
-        
-        let sep = Point3D.dist(pt1: hip, pt2: hop)
-        
-        print(String(sep) + "   " + String(describing: dev4?.lowerBound) + "   " + String(describing: dev4?.upperBound))
-        
-
-        // Find the deviation over a delta u of 0.01.  Why is that worthwhile to know?
-        let steadyV = 0.3
-
-        for jump in stride(from: 0.0, through: 0.9, by: 0.10)   {
-
-            let dotA = PointSurf(u: jump, v: steadyV)
-            let anchorA = try! board.pointAt(spot: dotA)
-            let dotB = PointSurf(u: jump + 0.1, v: steadyV)
-            let anchorB = try! board.pointAt(spot: dotB)
-
-            let wire = try! LineSeg(end1: anchorA, end2: anchorB)
-
-            var deviation = 0.0
-
-            for step in stride(from: jump + 0.01, through: jump + 0.09, by: 0.01)   {
-                let speck = PointSurf(u: step, v: steadyV)
-                let pip = try! board.pointAt(spot: speck)
-
-                let diffs = wire.resolveRelative(speck: pip)
-
-                let separation = diffs.perp.length()   // Always a positive value
-
-                if separation > deviation   {
-                    deviation = separation
-                }
-
+        if let fence = board.intersectPerp(blade: sheet, accuracy: 0.001)   {
+            
+            // Draw the curve
+            var dots = fence.split(allowableCrown: 0.003)
+            
+            for g in 1..<dots.count   {
+                let wire = try! LineSeg(end1: dots[g - 1], end2: dots[g])
+                displayLines.append(wire)
             }
-
-            // print(deviation)
+            
         }
 
+        
+           // Build a curve from two points and two slopes
         let alpha = PointSurf(u: 0.30, v: 0.20)
         let slope1 = VectorSurf(i: 1.0, j: 0.0)
         
@@ -185,6 +117,7 @@ class Sculpt   {
         }
 
         
+           // Build a curve from four points
         let ptA = PointSurf(u: 0.10, v: 0.55)
         let ptB = PointSurf(u: 0.24, v: 0.70)
         let fractionB = 0.34
@@ -202,12 +135,12 @@ class Sculpt   {
             displayLines.append(wire)
         }
         
-
     }   // End of func init
     
     
-    /// Generate the first surface for experimentation
-    func generateSurf1() -> Bicubic   {
+    
+    /// Generate a surface for experimentation
+    private func generateSurf1() -> Bicubic   {
         
         /// Array used multiple times
         var mediary = [double4]()
@@ -337,41 +270,5 @@ class Sculpt   {
         return board
     }
     
-    /// Generate a set of points at a constant U
-    func genStrip(surf: Bicubic, u: Double, thick: Double) -> (on: [Point3D], offset: [Point3D])   {
-        
-        /// Most recent points for sweeping in the U direction
-        var upperEdge = [Point3D]()
-        var lowerEdge = [Point3D]()
-        
-        
-        // Build the left edge
-        for g in stride(from: 0.0, through: 1.0, by: 0.10)   {
-            
-            var g2 = g   // Substitute that can be tweaked
-            
-            if g == 0.0   {
-                g2 = 0.03
-            }
-            
-            if g == 1.0   {
-                g2 = 0.97
-            }
-            
-            let speck = PointSurf(u: u, v: g2)
-            let pip = try! surf.pointAt(spot: speck)
-            upperEdge.append(pip)
-            
-            // Create a point offset inward by 'thick'
-            let norm = try! surf.normalAt(spot: speck)
-            let inwards = norm.reverse()
-            
-            let inset = inwards * thick
-            let inPip = pip.offset(jump: inset)
-            lowerEdge.append(inPip)
-        }
-        
-        return (upperEdge, lowerEdge)
-    }
     
 }

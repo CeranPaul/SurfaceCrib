@@ -228,9 +228,31 @@ class BicubicTests: XCTestCase {
         
         let target = Point3D(x: 0.45377, y: 0.54865, z: 1.44786)
 
-        let trial = try! Bicubic.intersectSurfLine(surf: convex!, arrow: laser)
+//        let trial = try! Bicubic.intersectSurfLine(surf: convex!, arrow: laser)
+//        print(trial)
+//        XCTAssertEqual(trial.spot, target)
+    }
+    
+    func testisEdgesSplit()   {
         
-        XCTAssertEqual(trial.spot, target)
+        var hub = Point3D(x: 2.0, y: -1.5, z: 0.5)
+        var arrow = Vector3D(i: 0.85, j: 0.25, k: 0.0)
+        arrow.normalize()
+        
+        let bladeA = try! Plane(spot: hub, arrow: arrow)
+        
+        let flagA = convex!.isEdgesSplit(flat: bladeA)
+        
+        XCTAssert(flagA.flag)
+        
+        
+        hub = Point3D(x: -4.0, y: -1.5, z: 0.5)
+        let bladeB = try! Plane(spot: hub, arrow: arrow)
+        
+        let flagB = convex!.isEdgesSplit(flat: bladeB)
+        
+        XCTAssertFalse(flagB.flag)
+        
     }
     
 }

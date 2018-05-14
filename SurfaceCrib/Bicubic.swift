@@ -334,7 +334,6 @@ open class Bicubic   {
     }
     
     /// Supply the point on the surface for the input parameter values.
-    /// Assumes 0 < u < 1, and the same for v - throws error otherwise.
     /// The order of operations in simd forces the transpose to be done on the coefficient matrices
     /// - Throws:
     ///   - ParameterRangeErrorDos if either of the input parameters are out of range
@@ -601,8 +600,8 @@ open class Bicubic   {
     /// Supply the normal to the surface for the input parameter values
     /// Some notations show "s" and "t" as the parameters, instead of "u" and "v"
     /// - Parameters:
-    ///   - u:  Parameter value for one direction.  Assumes 0 < u < 1
-    ///   - v:  Parameter value for the other direction.  Assumes 0 < v < 1
+    ///   - u:  Parameter value for one direction.
+    ///   - v:  Parameter value for the other direction.
     /// - Throws:
     ///   - ParameterRangeErrorDos if either of the input parameters are out of range
     /// - Returns: A normalized vector perpendicular to the surface at the point
@@ -623,13 +622,501 @@ open class Bicubic   {
     }
     
     
+    /// Examine the coefficients by printing to terminal
+    public func showCoeff() -> Void  {
+        
+        print()
+        print("     X  ")
+        for g in 0...3   {
+            
+            let myRow = qx[g]
+            
+            let col1 = String(format: "%.3f", myRow[0])
+            let col2 = String(format: "%.3f", myRow[1])
+            let col3 = String(format: "%.3f", myRow[2])
+            let col4 = String(format: "%.3f", myRow[3])
+            
+            print(col1 + "  " + col2 + "  " + col3 + "  " + col4)
+        }
+        
+        print()
+        print("     Y  ")
+        for g in 0...3   {
+            
+            let myRow = qy[g]
+            
+            let col1 = String(format: "%.3f", myRow[0])
+            let col2 = String(format: "%.3f", myRow[1])
+            let col3 = String(format: "%.3f", myRow[2])
+            let col4 = String(format: "%.3f", myRow[3])
+            
+            print(col1 + "  " + col2 + "  " + col3 + "  " + col4)
+        }
+        
+        print()
+        print("     Z  ")
+        for g in 0...3   {
+            
+            let myRow = qz[g]
+            
+            let col1 = String(format: "%.3f", myRow[0])
+            let col2 = String(format: "%.3f", myRow[1])
+            let col3 = String(format: "%.3f", myRow[2])
+            let col4 = String(format: "%.3f", myRow[3])
+            
+            print(col1 + "  " + col2 + "  " + col3 + "  " + col4)
+        }
+        
+        print()
+    }
+
+    
+    /// Generate a vector between the input point and the line.
+    /// - Parameters:
+    ///   - surf: Patch to be checked
+    ///   - spot: Trial point
+    internal static func errorToLine(surf: Bicubic, spot: PointSurf, arrow: Line) -> Vector3D   {
+        
+        /// Approximation point on surface
+        let approx = try! surf.pointAt(spot: spot)
+        
+        /// Nearest point on line
+        let dropped = arrow.dropPoint(away: approx)
+        
+        /// Difference between approx and line
+        let error = Vector3D.built(from: approx, towards: dropped)
+        
+        return error
+    }
+    
+    /// Finds only one intersection.  Works only for well-behaved cases.
+    /// Accuracy is assumed to be Point3D.Epsilon.
+    /// - Parameters:
+    ///   - surf: The surface to be pierced
+    ///   - arrow:  The Line of interest
+    /// - Returns: A single point, even if there might be multiple intersections
+    ///    and the parameters of that point
+    /// - Throws:
+    ///   - ParameterRangeErrorDos for an out-of-range parameter
+    ///   - ConvergenceError if 25 iterations don't do the trick
+    public static func intersectSurfLine(surf: Bicubic, arrow: Line) throws -> (spot: Point3D, spotSurf: PointSurf)   {
+        
+        var approxSpot = PointSurf(u: 0.5, v:  0.5)    // Initial guess
+       
+        /// Tally to keep loop from running away
+        var backstop = 0
+        
+        repeat   {
+            
+            /// Difference between approx and line
+            let discrep = Bicubic.errorToLine(surf: surf, spot: approxSpot, arrow: arrow)
+            
+            if discrep.length() < Point3D.Epsilon   {
+                let pierce = try! surf.pointAt(spot: approxSpot)
+                return (pierce, approxSpot)
+            }
+            
+            /// Vector in the U direction
+            let dirU = try! surf.partU(spot: approxSpot)
+            
+            var normU = dirU
+            normU.normalize()
+            let errorU = Vector3D.dotProduct(lhs: discrep, rhs: normU)
+            
+            /// Vector in the V direction
+            let dirV = try! surf.partV(spot: approxSpot)
+            
+            var normV = dirV
+            normV.normalize()
+            let errorV = Vector3D.dotProduct(lhs: discrep, rhs: normV)
+            
+               // This would be a good spot for 'offsetLimit'
+            if abs(errorU) > abs(errorV)   {    // Follow the stronger partial
+                approxSpot.u += errorU / dirU.length()
+                if approxSpot.u < 0.0 || approxSpot.u > 1.0   {
+                    throw ParameterRangeErrorDos(parA: approxSpot.u, parB: approxSpot.v)
+                }
+            }  else  {
+                approxSpot.v += errorV / dirV.length()
+                if approxSpot.v < 0.0 || approxSpot.v > 1.0   {
+                    throw ParameterRangeErrorDos(parA: approxSpot.u, parB: approxSpot.v)
+                }
+            }
+            
+            backstop += 1
+            
+        } while backstop < 25
+        
+        // Bail out with notification if convergence failed
+        if backstop > 24   { throw ConvergenceError(tnuoc: backstop) }
+        
+
+        let pierce = try! surf.pointAt(spot: approxSpot)   // This should never get reached
+
+        return (pierce, approxSpot)
+    }
+    
+    
+    
+    /// Generate the data necessary to show 200 triangles.
+    /// This has nothing to do with allowable crown.
+    /// - Parameters:
+    ///   - board:  The surface to be illustrated
+    /// - Returns: An array of line segments
+    public static func triData(board: Bicubic) -> [LineSeg]   {
+        
+        /// The data to be returned
+        var dashes = [LineSeg]()
+        
+        // Make some line segments that appear to be triangles for illustration
+        for myV in stride(from: 0.0, through: 0.9, by: 0.1)   {
+            
+            var dot = PointSurf(u: 0.0, v: myV)
+            var prevDown = try! board.pointAt(spot: dot)
+            dot = PointSurf(u: 0.0, v: myV + 0.1)
+            var prevUp = try! board.pointAt(spot: dot)
+            
+            let startingGate = try! LineSeg(end1: prevDown, end2: prevUp)
+            startingGate.setIntent(PenTypes.Mesh)
+            dashes.append(startingGate)
+            
+            for u in stride(from: 0.1, through: 1.0, by: 0.1)   {
+                
+                dot = PointSurf(u: u, v: myV)
+                let edgeDown = try! board.pointAt(spot: dot)
+                dot = PointSurf(u: u, v: myV + 0.1)
+                let edgeUp = try! board.pointAt(spot: dot)
+                
+                let bottom = try! LineSeg(end1: prevDown, end2: edgeDown)
+                
+                dashes.append(bottom)
+                
+                let top = try! LineSeg(end1: prevUp, end2: edgeUp)
+                dashes.append(top)
+                
+                let cross = try! LineSeg(end1: edgeDown, end2: edgeUp)
+                dashes.append(cross)
+                
+                let diag = try! LineSeg(end1: prevDown, end2: edgeUp)
+                dashes.append(diag)
+                
+                prevDown = edgeDown   // Prepare for the next iteration
+                prevUp = edgeUp
+                
+            }
+            
+        }
+
+        return dashes
+    }
+    
+    
+    /// Not used at the moment.
+    /// Find the range of an iso-parametric point pair where it crosses a plane.
+    /// This is part of finding the intersection - by successively refining the interval.
+    /// Assumes that there is only one intersection.
+    /// - Parameters:
+    ///   - sheet:  The Plane to be used in testing for a crossing.
+    ///   - span:  A ClosedRange<Double> of a single surface parameter in which to hunt.
+    ///   - inU:  Whether the trial range is in u, or in v.
+    ///   - fixedParam:  Value for the invariant parameter.
+    /// - Returns: A smaller ClosedRange<Double>
+    private func crossingIso(blade: Plane, span: ClosedRange<Double>, inU: Bool, fixedParam: Double) -> ClosedRange<Double>?   {
+        
+        /// Number of pieces to divide range
+        let chunks = 5
+        
+        /// Parameter step
+        let parStep = (span.upperBound - span.lowerBound) / Double(chunks)
+        
+        /// The possible return value
+        var tighter: ClosedRange<Double>
+        
+        let dot = PointSurf(u: span.lowerBound, v: fixedParam)
+        var lowerPoint = try! self.pointAt(spot: dot)
+        
+        if !inU   {
+            let speck = PointSurf(u: fixedParam, v: span.lowerBound)
+            lowerPoint = try! self.pointAt(spot: speck)
+        }
+        
+        
+        let lowerSep = blade.resolveRelative(pip: lowerPoint)
+        var refArrow = lowerSep.perp
+        
+        // Actually should do something different here if you end up with a zero vector
+        if !refArrow.isZero()   {
+            refArrow.normalize()
+        }
+        
+        /// Recent value of parameter
+        var previousParam = span.lowerBound
+        
+        for g in 1...chunks   {
+            
+            let runningParam = span.lowerBound + Double(g) * parStep   // Generate a new parameter value
+            
+            // Find the corresponding point on the surface
+            let speck = PointSurf(u: runningParam, v: fixedParam)
+            var runningPoint = try! self.pointAt(spot: speck)
+            
+            if !inU   {
+                let speck = PointSurf(u: fixedParam, v: runningParam)
+                runningPoint = try! self.pointAt(spot: speck)
+            }
+            
+            // See which side of 'sheet' it is on
+            let runningSep = blade.resolveRelative(pip: runningPoint)
+            let runningArrow = runningSep.perp
+            
+            /// Length of "runningArrow" when projected to the reference vector
+            let projection = Vector3D.dotProduct(lhs: runningArrow, rhs: refArrow)
+            
+            if projection < 0.0   {   // Opposite of the reference, so a crossing was just passed
+                tighter = ClosedRange<Double>(uncheckedBounds: (lower: previousParam, upper: runningParam))
+                return tighter   // Bails after the first crossing found, even if there happen to be more
+            }  else  {
+                previousParam = runningParam   // Prepare for checking the next interval
+            }
+        }
+        
+        return nil
+    }
+
+    
+    /// Find the intersection with a mostly perpendicular plane.
+    /// - Parameters:
+    ///   - blade:  The Plane to be used for the intersection.
+    ///   - accuracy: Precision in UV for the location of each point
+    /// - Returns: An optional fresh CubicUV
+    public func intersectPerp(blade: Plane, accuracy: Double) -> CubicUV?   {
+        
+        /// Answer on whether or not the plane is suitable for this process
+        let verdict = self.isEdgesSplit(flat: blade)
+        
+        if verdict.flag  &&  verdict.chops.count == 2   {
+            
+            /// Two boundary points that define the ends of the intersection curve.
+            let edgeCrossingOne = verdict.chops[0]
+            let edgeCrossingOpp = verdict.chops[1]
+            
+            let diffU = edgeCrossingOpp.u - edgeCrossingOne.u
+            let diffV = edgeCrossingOpp.v - edgeCrossingOne.v
+            
+            /// Direction from the first intersection point to the second.
+            var dirAlong = VectorSurf(i: diffU, j: diffV)
+            let dirLen = dirAlong.length()
+            dirAlong.normalize()
+            
+            /// Perpendicular to dirAlong
+            let dirPerp = VectorSurf(i: -dirAlong.j, j: dirAlong.i)
+            
+            /// The collection of surface points
+            var posts = [PointSurf]()
+            posts.append(edgeCrossingOne)   // Add one boundary point
+            
+            for g in 1...19   {
+                
+                let plod = dirAlong * Double(g) * 0.05 * dirLen   // Step towards the final boundary point
+                
+                if let middle = edgeCrossingOne.offsetNil(jump: plod)   {
+                    var stride = dirPerp * 0.08
+                    
+                    if let port = middle.offsetNil(jump: stride)   {
+                        stride = dirPerp * -0.08
+                        
+                        if let stbd = middle.offsetNil(jump: stride)   {
+                            
+                            let junct = try! self.pointWithinRange(blade: blade, rangeEndA: port, rangeEndB: stbd, accuracy: accuracy)
+                            posts.append(junct)   // Add this latest point
+                            
+                        }
+                    }
+                    
+                }
+                
+            }
+            
+            posts.append(edgeCrossingOpp)   // Add the closing boundary point
+            
+            /// The resulting curve
+            let fence = CubicUV.buildDots(dots: posts, surf: self)
+            
+            return fence
+            
+        }  else  {   // Not the right data for determining an intersection
+            
+            return nil
+        }
+        
+    }
+    
+    
+    /// Find a closer set of points that are split by the plane.
+    /// A helper for finding the intesection.
+    /// This perhaps could be private.
+    /// - Parameters:
+    ///   - blade:  The Plane to be used in testing for a crossing.
+    ///   - rangeEndA:  A PointSurf for one end of the hunting range.
+    ///   - rangeEndB:  A PointSurf for the other end of the hunting range.
+    /// - Returns: A pair of PointSurf's for a narrower range
+    internal func crossing(blade: Plane, rangeEndA: PointSurf, rangeEndB: PointSurf) -> (alpha: PointSurf, omega: PointSurf)   {
+        
+        /// Number of desired divisions for the input range
+        let chunks = 5
+        
+        /// Points defining several smaller ranges
+        let hops = PointSurf.splitSpan(pointA: rangeEndA, pointB: rangeEndB, chunks: chunks)
+        
+        for g in 1...chunks   {
+            
+            let dotA = hops[g - 1]
+            let ballA = try! self.pointAt(spot: dotA)
+            
+            let dotB = hops[g]
+            let ballB = try! self.pointAt(spot: dotB)
+            
+            let flag = blade.isOpposite(pointA: ballA, pointB: ballB)
+            
+            if flag   { return(dotA, dotB) }
+        }
+        
+        return(rangeEndA, rangeEndB)   // This indicates a problem!
+    }
+    
+    
+    /// Finds a PointSurf on the intersection of a plane.
+    /// Assumes that the starting range is good.
+    /// - Parameters:
+    ///   - blade:  The Plane to be used in testing for a crossing.
+    ///   - rangeEndA:  A PointSurf for one end of the hunting range.
+    ///   - rangeEndB:  A PointSurf for the other end of the hunting range.
+    /// - Throws: ConvergenceError if 8 iterations isn't sufficient.
+    /// - Returns: The intersection point.
+    internal func pointWithinRange(blade: Plane, rangeEndA: PointSurf, rangeEndB: PointSurf, accuracy: Double) throws -> PointSurf   {
+        
+        /// Separation of Point3D's for each iteration
+        var sep = accuracy * 10.0   // Radical starting value
+      
+        /// Point to be returned
+        var hip = rangeEndA
+        
+        /// Working point at the other end of the range.
+        var hop = rangeEndB
+
+        
+        /// Counter to avoid a runaway loop
+        var backstop = 0
+        
+        while backstop < 8   {
+            
+            let refined = self.crossing(blade: blade, rangeEndA: hip, rangeEndB: hop)
+            let speckA = try! self.pointAt(spot: refined.alpha)
+            let speckB = try! self.pointAt(spot: refined.omega)
+            sep = Point3D.dist(pt1: speckA, pt2: speckB)
+            
+            if sep < accuracy   {
+                hip = refined.alpha
+                break
+            }
+
+            hip = refined.alpha
+            hop = refined.omega
+            backstop += 1
+        }
+        
+           // Bail out with notification if convergence failed
+        if backstop > 7   { throw ConvergenceError(tnuoc: backstop) }
+        
+        return hip
+    }
+    
+    
+    /// Find the relationship between a plane and the four corners.
+    /// This method will generate false negatives when a plane is nearly tangent to the surface.
+    /// This could possibly become private, since it is probably only used for a intersection.
+    /// - Parameters:
+    ///   - flat:  The plane to be checked
+    /// - Returns: A flag indicating whether or not the plane splits two edges, and the two PointSurfs
+    /// - See: 'testIsEdgesSplit' in BicubicTests
+    internal func isEdgesSplit(flat: Plane) -> (flag: Bool, chops: [PointSurf])   {
+        
+        /// Find the relationship of a point to the plane's normal
+        let cornerSense: (PointSurf) -> Double = {
+            let corner = try! self.pointAt(spot: $0)
+            let dirPair = flat.resolveRelative(pip: corner)
+            return Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPair.perp)
+        }
+        
+        let cornerA = PointSurf(u: 0.0, v: 0.0)
+        let cornerB = PointSurf(u: 0.0, v: 1.0)
+        let cornerC = PointSurf(u: 1.0, v: 1.0)
+        let cornerD = PointSurf(u: 1.0, v: 0.0)
+        
+        let senseA = cornerSense(cornerA)
+        let senseB = cornerSense(cornerB)
+        let senseC = cornerSense(cornerC)
+        let senseD = cornerSense(cornerD)
+
+        
+        /// Locations where the plane splits the edges.  Should end up with two members.
+        var crossings = [PointSurf]()
+        
+        let flag1 = (senseA * senseB) < 0.0
+        
+        if flag1   {
+            let chop = try! self.pointWithinRange(blade: flat, rangeEndA: cornerA, rangeEndB: cornerB, accuracy: 0.001)
+            crossings.append(chop)
+        }
+        
+        
+        let flag2 = (senseA * senseD) < 0.0
+        
+        if flag2   {
+            let chop = try! self.pointWithinRange(blade: flat, rangeEndA: cornerA, rangeEndB: cornerD, accuracy: 0.001)
+            crossings.append(chop)
+        }
+        
+        
+        let flag3 = (senseB * senseC) < 0.0
+        
+        if flag3   {
+            let chop = try! self.pointWithinRange(blade: flat, rangeEndA: cornerB, rangeEndB: cornerC, accuracy: 0.001)
+            crossings.append(chop)
+        }
+        
+        
+        let flag4 = (senseC * senseD) < 0.0
+        
+        if flag4   {
+            let chop = try! self.pointWithinRange(blade: flat, rangeEndA: cornerC, rangeEndB: cornerD, accuracy: 0.001)
+            crossings.append(chop)
+        }
+        
+        
+        /// Positive if all of the corner points are on the same side of the plane, either positive, or negative.
+        let prod = senseA * senseB * senseC * senseD
+        
+        if prod < 0.0 { return (true, crossings) }   // Three on one side, one on the other.
+        
+
+           // Deal with the case of two positives and two negatives
+        if flag1  &&  flag4    { return (true, crossings) }
+        if flag2  &&  flag3    { return (true, crossings) }
+
+        
+        return (false, crossings)   // No intersection
+    }
+    
+    
+    
     /// Look for surface curvature around a point
     /// Checks four points at 0.05 away
     /// - Parameters:
     ///   - u:  Parameter value for one direction.  Assumes 0 < u < 1
     ///   - v:  Parameter value for the other direction.  Assumes 0 < v < 1
     /// - Returns: A flag
-    public func isConvex(spot: PointSurf) throws -> Bool   {
+    private func isConvex(spot: PointSurf) throws -> Bool   {
         
         guard spot.isInRange()  else   { throw ParameterRangeErrorDos(parA: spot.u, parB: spot.v) }
         
@@ -734,137 +1221,6 @@ open class Bicubic   {
     }
     
     
-
-    /// Examine the coefficients by printing to terminal
-    public func showCoeff() -> Void  {
-        
-        print()
-        print("     X  ")
-        for g in 0...3   {
-            
-            let myRow = qx[g]
-            
-            let col1 = String(format: "%.3f", myRow[0])
-            let col2 = String(format: "%.3f", myRow[1])
-            let col3 = String(format: "%.3f", myRow[2])
-            let col4 = String(format: "%.3f", myRow[3])
-            
-            print(col1 + "  " + col2 + "  " + col3 + "  " + col4)
-        }
-        
-        print()
-        print("     Y  ")
-        for g in 0...3   {
-            
-            let myRow = qy[g]
-            
-            let col1 = String(format: "%.3f", myRow[0])
-            let col2 = String(format: "%.3f", myRow[1])
-            let col3 = String(format: "%.3f", myRow[2])
-            let col4 = String(format: "%.3f", myRow[3])
-            
-            print(col1 + "  " + col2 + "  " + col3 + "  " + col4)
-        }
-        
-        print()
-        print("     Z  ")
-        for g in 0...3   {
-            
-            let myRow = qz[g]
-            
-            let col1 = String(format: "%.3f", myRow[0])
-            let col2 = String(format: "%.3f", myRow[1])
-            let col3 = String(format: "%.3f", myRow[2])
-            let col4 = String(format: "%.3f", myRow[3])
-            
-            print(col1 + "  " + col2 + "  " + col3 + "  " + col4)
-        }
-        
-        print()
-    }
-
-    
-    /// Generate a vector between the input point and the line.
-    /// - Parameters:
-    ///   - surf: Patch to be checked
-    ///   - spot: Trial point
-    public static func errorToLine(surf: Bicubic, spot: PointSurf, arrow: Line) -> Vector3D   {
-        
-        /// Approximation point on surface
-        let approx = try! surf.pointAt(spot: spot)
-        
-        /// Nearest point on line
-        let dropped = arrow.dropPoint(away: approx)
-        
-        /// Difference between approx and line
-        let error = Vector3D.built(from: approx, towards: dropped)
-        
-        return error
-    }
-    
-    /// Works only for well-behaved cases
-    /// - Parameters:
-    ///   - arrow:  The Line of interest
-    /// - Returns: A single point, even if there might be multiple intersections
-    ///    and the parameters of that point
-    /// - Throws: ParameterRangeErrorDos for an out-of-range parameter
-    public static func intersectSurfLine(surf: Bicubic, arrow: Line) throws -> (spot: Point3D, spotSurf: PointSurf)   {
-        
-        
-        var approxSpot = PointSurf(u: 0.0, v:  0.0)    // Initial guess
-       
-        
-        var g = 0
-        
-        repeat   {
-            
-            /// Difference between approx and line
-            let error = Bicubic.errorToLine(surf: surf, spot: approxSpot, arrow: arrow)
-//            print(String(format: "%.5f", error.length()) + " at " + String(format: "%.3f", approxU) + "  " + String(format: "%.3f", approxV))
-            
-            if error.length() < Point3D.Epsilon   {
-                break
-            }
-            
-            /// Vector in the U direction
-            let dirU = try! surf.partU(spot: approxSpot)
-            
-            var normU = dirU
-            normU.normalize()
-            let errorU = Vector3D.dotProduct(lhs: error, rhs: normU)
-            
-            /// Vector in the V direction
-            let dirV = try! surf.partV(spot: approxSpot)
-            
-            var normV = dirV
-            normV.normalize()
-            let errorV = Vector3D.dotProduct(lhs: error, rhs: normV)
-            
-            if abs(errorU) > abs(errorV)   {    // Follow the stronger partial
-                approxSpot.u += errorU / dirU.length()
-                if approxSpot.u < 0.0 || approxSpot.u > 1.0   {
-                    throw ParameterRangeErrorDos(parA: approxSpot.u, parB: approxSpot.v)
-                }
-            }  else  {
-                approxSpot.v += errorV / dirV.length()
-                if approxSpot.v < 0.0 || approxSpot.v > 1.0   {
-                    throw ParameterRangeErrorDos(parA: approxSpot.u, parB: approxSpot.v)
-                }
-            }
-            
-            g += 1
-            
-        } while g < 25
-        
-        
-        let pierce = try! surf.pointAt(spot: approxSpot)
-
-//        print(String(g) + " P: " + String(format: "%.3f", approxU) + " " + String(format: "%.3f", approxV))
-
-        return (pierce, approxSpot)
-    }
-    
-    
     
     /// Refine values as part of finding the fillet tangent point on the surface
     /// - Parameters:
@@ -875,7 +1231,7 @@ open class Bicubic   {
     ///   - planeOut:  Vector perpendicular to the section cut
     ///   - span:  Ratio of fillet radius used for this iteration
     /// - Returns: A narrower range if a crossing is found, nil otherwise, plus the value of the error and three points
-    public static func crossingFillet(playingField: Bicubic, filletCL: Line, filletRad: Double, sideways: Vector3D, planeOut: Vector3D,  span: ClosedRange<Double>) -> (egnar:ClosedRange<Double>?, error: Double, surfTan: Point3D, filletCtr: Point3D, uprightTan: Point3D)   {
+    private static func crossingFillet(playingField: Bicubic, filletCL: Line, filletRad: Double, sideways: Vector3D, planeOut: Vector3D,  span: ClosedRange<Double>) -> (egnar:ClosedRange<Double>?, error: Double, surfTan: Point3D, filletCtr: Point3D, uprightTan: Point3D)   {
         
         /// Number of pieces to divide range
         let chunks = 8
@@ -932,6 +1288,65 @@ open class Bicubic   {
     }
     
     
+    /// Only used for the stiffened panel.
+    /// Find the normal and intersection for a fillet tangency on a surface.
+    /// - Parameters:
+    ///   - playingField:  The surface to be used in finding the tangency point
+    ///   - filletCL:  Line 'filletRad' away from the pillar surface
+    ///   - filletRad:  Radius to blend between the base surface and the pillar
+    ///   - sideways:  Vector representing 'horizontal' in the section cut
+    ///   - planeOut:  Vector perpendicular to the section cut
+    ///   - hop:  Ratio of fillet radius used as an offset for this iteration
+    /// - Returns: A tuple containing a Point3D and its distance to the filletCL
+    private static func offsetNormalInter(playingField: Bicubic, filletCL: Line, filletRad: Double, sideways: Vector3D, planeOut: Vector3D, hop: Double) -> (spot: Point3D, spotSurf: PointSurf, dist: Double, filletCtr: Point3D)   {
+        
+        let jump = sideways * (filletRad * hop)
+        
+        /// Base for one of the trial lines
+        let follicle = filletCL.getOrigin().offset(jump: jump)
+        
+        let hairOff = try! Line(spot: follicle, arrow: filletCL.getDirection())
+        
+        /// Possible fillet tangency point
+        let maybeTan = try! Bicubic.intersectSurfLine(surf: playingField, arrow: hairOff)
+        
+        
+        // Remove any out-of-plane component that the normal might have
+        let tiltBeam = try! playingField.normalAt(spot: maybeTan.spotSurf)   // Not necessarily in-plane
+        
+        let gravelMag = Vector3D.dotProduct(lhs: tiltBeam, rhs: planeOut)
+        //            print("G: " + String(format: "%.3f", gravelMag))
+        
+        /// Small out-of-plane component
+        let gravel = planeOut * gravelMag
+        
+        /// The modified surface normal
+        var beamVec = tiltBeam - gravel
+        beamVec.normalize()
+        
+        /// Possible radial line of the fillet
+        let beam = try! Line(spot: maybeTan.spot, arrow: beamVec)
+        
+        /// Point where the line to the surface intersects filletCL
+        let slash = try! Line.intersectTwo(straightA: filletCL, straightB: beam)
+        
+        /// Distance from the surface to the fillet centerline
+        var dennison = Point3D.dist(pt1: slash, pt2: maybeTan.spot)
+        
+        let newman = Vector3D.built(from: maybeTan.spot, towards: slash)
+        let nSense = Vector3D.dotProduct(lhs: filletCL.getDirection(), rhs: newman)
+        
+        var factor = 1.0   // Positive if above the surface, negative if below
+        if nSense < 0.0   {
+            factor = -1.0
+        }
+        
+        dennison *= factor   // The goal is to find this positive and equal to the fillet radius
+                
+        return(maybeTan.spot, maybeTan.spotSurf, dennison, slash)
+    }
+
+    
     /// Generate a few isoparametric lines to illustrate the surface
     /// This should become a class function for Bicubic
     /// - Returns: Array of LineSeg's to be plotted
@@ -985,256 +1400,35 @@ open class Bicubic   {
     }
     
     
-    /// Generate the data necessary to show quills.
-    /// - Parameters:
-    ///   - board:  The surface to be illustrated
-   public static func quillData(board: Bicubic) -> (pips: [Point3D], norms: [Vector3D])   {
+    
+    /// Generate short lines to indicate curvature.
+    /// Spacing and length are candidates for input parameters.
+    /// - Returns: Array of LineSeg
+    public func genQuills() -> [LineSeg]   {
         
-        /// Data to be returned
-        var spots = [Point3D]()
-        var arrows = [Vector3D]()
+        /// Short lines to be returned
+        var spikes = [LineSeg]()
         
-        for myU in stride(from: 0.0, to: 1.0001, by: 0.2)   {
+        for myU in stride(from: 0.0, to: 1.0001, by: 0.1)   {
             
-            for myV in stride(from: 0.0, to: 1.0001, by: 0.2)   {
+            for myV in stride(from: 0.0, to: 1.0001, by: 0.1)   {
                 
-                let dot = PointSurf(u: myU, v: myV)
-                let root = try! board.pointAt(spot: dot)
-                spots.append(root)
+                let pip = PointSurf(u: myU, v: myV)
+                let root = try! self.pointAt(spot: pip)
+                let dir = try! self.normalAt(spot: pip)
                 
-                let dir = try! board.normalAt(spot: dot)
-                arrows.append(dir)
+                let tip = root.offset(jump: dir)
+                
+                let quill = try! LineSeg(end1: root, end2: tip)
+                spikes.append(quill)
                 
             }  // Inner loop
             
         }   // Outer loop
-    
-        return (spots, arrows)
-    }
-    
-    /// Generate the data necessary to show 200 triangles.
-    /// This has nothing to do with allowable crown.
-    /// - Parameters:
-    ///   - board:  The surface to be illustrated
-    /// - Returns: An array of line segments
-    public static func triData(board: Bicubic) -> [LineSeg]   {
         
-        /// The data to be returned
-        var dashes = [LineSeg]()
-        
-        // Make some line segments that appear to be triangles for illustration
-        for myV in stride(from: 0.0, through: 0.9, by: 0.1)   {
-            
-            var dot = PointSurf(u: 0.0, v: myV)
-            var prevDown = try! board.pointAt(spot: dot)
-            dot = PointSurf(u: 0.0, v: myV + 0.1)
-            var prevUp = try! board.pointAt(spot: dot)
-            
-            let startingGate = try! LineSeg(end1: prevDown, end2: prevUp)
-            startingGate.setIntent(PenTypes.Mesh)
-            dashes.append(startingGate)
-            
-            for u in stride(from: 0.1, through: 1.0, by: 0.1)   {
-                
-                dot = PointSurf(u: u, v: myV)
-                let edgeDown = try! board.pointAt(spot: dot)
-                dot = PointSurf(u: u, v: myV + 0.1)
-                let edgeUp = try! board.pointAt(spot: dot)
-                
-                let bottom = try! LineSeg(end1: prevDown, end2: edgeDown)
-                
-                dashes.append(bottom)
-                
-                let top = try! LineSeg(end1: prevUp, end2: edgeUp)
-                dashes.append(top)
-                
-                let cross = try! LineSeg(end1: edgeDown, end2: edgeUp)
-                dashes.append(cross)
-                
-                let diag = try! LineSeg(end1: prevDown, end2: edgeUp)
-                dashes.append(diag)
-                
-                prevDown = edgeDown   // Prepare for the next iteration
-                prevUp = edgeUp
-                
-            }
-            
-        }
-
-        return dashes
+        return spikes
     }
     
     
-    /// Find the range of an iso-parameter curve where it crosses a plane.
-    /// This is part of finding the intersection - by successively refining the interval.
-    /// Assumes that there is only one intersection.
-    /// - Parameters:
-    ///   - sheet:  The Plane to be used in testing for a crossing.
-    ///   - span:  A range of a single surface parameter in which to hunt.
-    ///   - inU:  Whether the trial range is in u, or in v.
-    ///   - fixedParam:  Value for the invariant parameter.
-    /// - Returns: A smaller ClosedRange<Double>
-    func crossing(sheet: Plane, span: ClosedRange<Double>, inU: Bool, fixedParam: Double) -> ClosedRange<Double>?   {
-        
-        /// Number of pieces to divide range
-        let chunks = 5
-        
-        /// Parameter step
-        let parStep = (span.upperBound - span.lowerBound) / Double(chunks)
-        
-        /// The possible return value
-        var tighter: ClosedRange<Double>
-        
-        let dot = PointSurf(u: span.lowerBound, v: fixedParam)
-        var lowerPoint = try! self.pointAt(spot: dot)
-        
-        if !inU   {
-            let speck = PointSurf(u: fixedParam, v: span.lowerBound)
-            lowerPoint = try! self.pointAt(spot: speck)
-        }
-        
-        
-        let lowerSep = sheet.resolveRelative(pip: lowerPoint)
-        var refArrow = lowerSep.perp
-        
-        // Actually should do something different here if you end up with a zero vector
-        if !refArrow.isZero()   {
-            refArrow.normalize()
-        }
-        
-        /// Recent value of parameter
-        var previousParam = span.lowerBound
-        
-        for g in 1...chunks   {
-            
-            let runningParam = span.lowerBound + Double(g) * parStep   // Generate a new parameter value
-            
-            // Find the corresponding point on the surface
-            let speck = PointSurf(u: runningParam, v: fixedParam)
-            var runningPoint = try! self.pointAt(spot: speck)
-            
-            if !inU   {
-                let speck = PointSurf(u: fixedParam, v: runningParam)
-                runningPoint = try! self.pointAt(spot: speck)
-            }
-            
-            // See which side of 'sheet' it is on
-            let runningSep = sheet.resolveRelative(pip: runningPoint)
-            let runningArrow = runningSep.perp
-            
-            /// Length of "runningArrow" when projected to the reference vector
-            let projection = Vector3D.dotProduct(lhs: runningArrow, rhs: refArrow)
-            
-            if projection < 0.0   {   // Opposite of the reference, so a crossing was just passed
-                tighter = ClosedRange<Double>(uncheckedBounds: (lower: previousParam, upper: runningParam))
-                return tighter   // Bails after the first crossing found, even if there happen to be more
-            }  else  {
-                previousParam = runningParam   // Prepare for checking the next interval
-            }
-        }
-        
-        return nil
-    }
-    
-    /// Find the relationship between a plane and the four corners
-    /// This prompts a bunch of unit tests
-    /// This method is not suitable when a plane is nearly tangent to the surface
-    /// - Parameters:
-    ///   - flat:  The plane to be checked
-    /// - Returns: A flag indicating whether or not the plane intersects
-    func cornerCheck(flat: Plane) -> Bool   {
-        
-        /// The value to be returned
-        let flag = false
-        
-        var speck = PointSurf(u: 0.0, v: 0.0)
-        let cornerA = try! self.pointAt(spot: speck)
-        let dirPairA = flat.resolveRelative(pip: cornerA)
-        let vertA = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairA.perp)
-        
-        speck = PointSurf(u: 1.0, v: 0.0)
-        let cornerB = try! self.pointAt(spot: speck)
-        let dirPairB = flat.resolveRelative(pip: cornerB)
-        let vertB = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairB.perp)
-        
-        speck = PointSurf(u: 1.0, v: 1.0)
-        let cornerC = try! self.pointAt(spot: speck)
-        let dirPairC = flat.resolveRelative(pip: cornerC)
-        let vertC = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairC.perp)
-        
-        speck = PointSurf(u: 0.0, v: 1.0)
-        let cornerD = try! self.pointAt(spot: speck)
-        let dirPairD = flat.resolveRelative(pip: cornerD)
-        let vertD = Vector3D.dotProduct(lhs: flat.getNormal(), rhs: dirPairD.perp)
-        
-        /// Positive if all of the corner points are on the same side of the plane, either positive, or negative.
-        let prod = vertA * vertB * vertC * vertD
-
-        if prod < 0.0 { return true }
-        
-           // Deal with the case of two positives and two negatives
-        
-        
-        return flag
-    }
-    
-    
-    /// Find the normal and intersection for a fillet tangency on a surface
-    /// - Parameters:
-    ///   - playingField:  The surface to be used in finding the tangency point
-    ///   - filletCL:  Line 'filletRad' away from the pillar surface
-    ///   - filletRad:  Radius to blend between the base surface and the pillar
-    ///   - sideways:  Vector representing 'horizontal' in the section cut
-    ///   - planeOut:  Vector perpendicular to the section cut
-    ///   - hop:  Ratio of fillet radius used as an offset for this iteration
-    /// - Returns: A tuple containing a Point3D and its distance to the filletCL
-    public static func offsetNormalInter(playingField: Bicubic, filletCL: Line, filletRad: Double, sideways: Vector3D, planeOut: Vector3D, hop: Double) -> (spot: Point3D, spotSurf: PointSurf, dist: Double, filletCtr: Point3D)   {
-        
-        let jump = sideways * (filletRad * hop)
-        
-        /// Base for one of the trial lines
-        let follicle = filletCL.getOrigin().offset(jump: jump)
-        
-        let hairOff = try! Line(spot: follicle, arrow: filletCL.getDirection())
-        
-        /// Possible fillet tangency point
-        let maybeTan = try! Bicubic.intersectSurfLine(surf: playingField, arrow: hairOff)
-        
-        
-        // Remove any out-of-plane component that the normal might have
-        let tiltBeam = try! playingField.normalAt(spot: maybeTan.spotSurf)   // Not necessarily in-plane
-        
-        let gravelMag = Vector3D.dotProduct(lhs: tiltBeam, rhs: planeOut)
-        //            print("G: " + String(format: "%.3f", gravelMag))
-        
-        /// Small out-of-plane component
-        let gravel = planeOut * gravelMag
-        
-        /// The modified surface normal
-        var beamVec = tiltBeam - gravel
-        beamVec.normalize()
-        
-        /// Possible radial line of the fillet
-        let beam = try! Line(spot: maybeTan.spot, arrow: beamVec)
-        
-        /// Point where the line to the surface intersects filletCL
-        let slash = try! Line.intersectTwo(straightA: filletCL, straightB: beam)
-        
-        /// Distance from the surface to the fillet centerline
-        var dennison = Point3D.dist(pt1: slash, pt2: maybeTan.spot)
-        
-        let newman = Vector3D.built(from: maybeTan.spot, towards: slash)
-        let nSense = Vector3D.dotProduct(lhs: filletCL.getDirection(), rhs: newman)
-        
-        var factor = 1.0   // Positive if above the surface, negative if below
-        if nSense < 0.0   {
-            factor = -1.0
-        }
-        
-        dennison *= factor   // The goal is to find this positive and equal to the fillet radius
-                
-        return(maybeTan.spot, maybeTan.spotSurf, dennison, slash)
-    }
-
 }
 
