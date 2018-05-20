@@ -93,6 +93,9 @@
 		81A87E3620A37C84003FF3ED /* CurveUV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A87E3520A37C84003FF3ED /* CurveUV.swift */; };
 		81A87E3720A37C84003FF3ED /* CurveUV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A87E3520A37C84003FF3ED /* CurveUV.swift */; };
 		81A87E3820A37F3A003FF3ED /* ParameterRangeErrorUno.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A87E3320A37C68003FF3ED /* ParameterRangeErrorUno.swift */; };
+		81F22FB320AD2E1200418E5A /* Sculpt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E41631FFB15F400E1250A /* Sculpt.swift */; };
+		81F22FB520B21A2300418E5A /* PointPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81F22FB420B21A2300418E5A /* PointPair.swift */; };
+		81F22FB620B21A2300418E5A /* PointPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81F22FB420B21A2300418E5A /* PointPair.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -158,6 +161,7 @@
 		81A87D9B209BD215003FF3ED /* VectorSurf.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VectorSurf.swift; sourceTree = "<group>"; };
 		81A87E3320A37C68003FF3ED /* ParameterRangeErrorUno.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParameterRangeErrorUno.swift; sourceTree = "<group>"; };
 		81A87E3520A37C84003FF3ED /* CurveUV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveUV.swift; sourceTree = "<group>"; };
+		81F22FB420B21A2300418E5A /* PointPair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointPair.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -230,6 +234,7 @@
 				811E41131FFB130200E1250A /* Info.plist */,
 				81483C8020A4C13B00D1D852 /* ExtentUV.swift */,
 				81483C8320A6599F00D1D852 /* ConvergenceError.swift */,
+				81F22FB420B21A2300418E5A /* PointPair.swift */,
 			);
 			path = SurfaceCrib;
 			sourceTree = "<group>";
@@ -375,6 +380,7 @@
 				811E41551FFB155400E1250A /* NonOrthogonalCSYSError.swift in Sources */,
 				811E41571FFB155400E1250A /* ParallelLinesError.swift in Sources */,
 				811E41301FFB153500E1250A /* Easel.swift in Sources */,
+				81F22FB520B21A2300418E5A /* PointPair.swift in Sources */,
 				811E41591FFB155400E1250A /* SurfaceInputError.swift in Sources */,
 				811E410A1FFB130200E1250A /* ViewController.swift in Sources */,
 				811E41351FFB153500E1250A /* CoordinateSystem.swift in Sources */,
@@ -429,6 +435,7 @@
 				811E41861FFC67A100E1250A /* NonUnitDirectionError.swift in Sources */,
 				811E418B1FFC680100E1250A /* EdgeOverflowError.swift in Sources */,
 				811E41901FFC681C00E1250A /* ParallelPlanesError.swift in Sources */,
+				81F22FB620B21A2300418E5A /* PointPair.swift in Sources */,
 				811E41791FFC66B500E1250A /* LineSeg.swift in Sources */,
 				811E41911FFC682200E1250A /* TriangleError.swift in Sources */,
 				811E41801FFC673700E1250A /* Bicubic.swift in Sources */,
@@ -454,6 +461,7 @@
 				811E41871FFC67DD00E1250A /* ArcPointsError.swift in Sources */,
 				811E418E1FFC681100E1250A /* ParallelError.swift in Sources */,
 				811E417F1FFC670400E1250A /* Transform.swift in Sources */,
+				81F22FB320AD2E1200418E5A /* Sculpt.swift in Sources */,
 				811E41891FFC67E500E1250A /* CoincidentPlanesError.swift in Sources */,
 				81483C8520A659A000D1D852 /* ConvergenceError.swift in Sources */,
 				811E417D1FFC66F800E1250A /* Line.swift in Sources */,

@@ -757,7 +757,6 @@ open class Bicubic   {
     }
     
     
-    
     /// Generate the data necessary to show 200 triangles.
     /// This has nothing to do with allowable crown.
     /// - Parameters:
@@ -777,7 +776,7 @@ open class Bicubic   {
             var prevUp = try! board.pointAt(spot: dot)
             
             let startingGate = try! LineSeg(end1: prevDown, end2: prevUp)
-            startingGate.setIntent(PenTypes.Mesh)
+            startingGate.setIntent(purpose: PenTypes.Positive)
             dashes.append(startingGate)
             
             for u in stride(from: 0.1, through: 1.0, by: 0.1)   {
@@ -810,6 +809,88 @@ open class Bicubic   {
         return dashes
     }
     
+    
+    /// Show grid points near the intersection
+    public static func changeGrid(surf: Bicubic, blade: Plane, rangeU: ClosedRange<Double>, rangeV: ClosedRange<Double>) -> [LineSeg]   {
+        
+        let tnuoc = 8   // Increase this number to get a larger count of intersection points.
+        
+        /// Half of the width of a neighborhood
+        let halfWidth = 1.2 * (rangeU.upperBound - rangeU.lowerBound) / Double(tnuoc - 1)
+        
+        let gridPts = PointSurf.genGrid(portionU: rangeU, portionV: rangeV, countU: tnuoc, countV: tnuoc)
+        
+        /// LineSegs to be returned
+        var nails = [LineSeg]()
+        
+           // Build neighborhoods and plot center if not uniform
+        for blip in gridPts   {
+            
+            let cornerA = PointSurf(u: blip.u - halfWidth, v: blip.v - halfWidth)
+            let cornerB = PointSurf(u: blip.u + halfWidth, v: blip.v + halfWidth)
+            
+            /// The Neighborhood around blip
+            let arrond = Neighborhood(cornerA: cornerA, cornerB: cornerB)
+            
+            /// Points in the neighborhood
+            let buds = gridPts.filter( { arrond.isIn(trial: $0 ) } )    // Probably not dependable ordering
+            
+            let thorns = Bicubic.neighborHue(surf: surf, blade: blade, blip: blip, neighborPts: buds)
+            
+            nails.append(contentsOf: thorns)
+            
+        }   // Loop through grid points
+        
+        return nails
+    }   // End of function changeGrid
+    
+    
+    private static func neighborHue(surf: Bicubic, blade: Plane, blip: PointSurf, neighborPts: [PointSurf]) -> [LineSeg]   {
+        
+        /// Compact steps for finding which side of the plane.
+        let findSense: (PointSurf) -> Double = {
+            
+            let there = try! surf.pointAt(spot: $0)
+            let comps = blade.resolveRelative(pip: there)
+            let sense = Vector3D.dotProduct(lhs: comps.perp, rhs: blade.getNormal())
+            
+            return sense
+        }
+        
+        var hairs = [LineSeg]()
+        
+        /// Sense for each neighborhood point
+        let sar = neighborPts.map( { findSense($0) } )
+        
+        for g in 1..<sar.count   {
+            
+            let prod = sar[g - 1] * sar[g]
+            
+            
+            // Color the center point
+            if prod < 0.0   {   // This neighborhood is not uniform
+                
+                var enamel = PenTypes.Positive
+                
+                if findSense(blip) < 0.0   { enamel = PenTypes.Negative}
+                
+                
+                let ping = try! surf.pointAt(spot: blip)
+                
+                let wires = Point3D.crosshair(pip: ping, halfLength: 0.08)
+                
+                for stem in wires   {
+                    stem.setIntent(purpose: enamel)
+                }
+                
+                hairs.append(contentsOf: wires)
+                break
+            }   // Non-uniform neighborhood
+            
+        }   // Loop through points of a neighborhood
+        
+        return hairs
+    }
     
     /// Not used at the moment.
     /// Find the range of an iso-parametric point pair where it crosses a plane.

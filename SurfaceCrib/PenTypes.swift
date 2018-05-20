@@ -17,9 +17,9 @@ public enum PenTypes {
     
     case Paired
     
-    case Mesh
+    case Positive
     
-    case Bachelor
+    case Negative
     
     case Overflow
     
