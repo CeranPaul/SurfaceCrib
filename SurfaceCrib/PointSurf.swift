@@ -12,10 +12,14 @@ import Foundation
 /// u and v are the equivalent of s and t.
 /// No range checks are made to keep u and v between 0.0 and 1.0.
 /// The default initializer suffices.
-public struct PointSurf   {
+public struct PointSurf: Equatable   {
     
     var u: Double
     var v: Double
+    
+    /// Threshhold of separation for equality checks
+    public static let Epsilon: Double = 0.001
+
     
     // Replacing the default initializer with something that does range checking might be good.
     
@@ -28,6 +32,7 @@ public struct PointSurf   {
         
         return flagU && flagV
     }
+    
     
     /// Generate a new point if it is within range.
     /// - Parameters:
@@ -59,6 +64,22 @@ public struct PointSurf   {
         if freshV < 0.0   { freshV = 0.0 }
         
         return PointSurf(u: freshU, v: freshV)
+    }
+    
+    // TODO: Offset, but shorten the vector in case of going out of bounds.
+    
+    /// Calculate the distance between two of 'em
+    /// - Parameters:
+    ///   - pt1:  One point
+    ///   - pt2:  Another point
+    public static func dist(pt1: PointSurf, pt2: PointSurf) -> Double   {
+        
+        let deltaU = pt2.u - pt1.u
+        let deltaV = pt2.v - pt1.v
+        
+        let sum = deltaU * deltaU + deltaV * deltaV
+        
+        return sqrt(sum)
     }
     
     
@@ -94,6 +115,124 @@ public struct PointSurf   {
         stairs.append(pointB)   // Close with the other end
         
         return stairs
+    }
+    
+    /// Generate a grid of points on a portion of the surface.
+    /// No range checking.
+    public static func genGrid(portionU: ClosedRange<Double>, portionV: ClosedRange<Double>, countU: Int, countV: Int ) -> [PointSurf]   {
+        
+        let stepU = (portionU.upperBound - portionU.lowerBound) / Double(countU - 1)
+        let stepV = (portionV.upperBound - portionV.lowerBound) / Double(countV - 1)
+        
+        
+        /// Values for U across the range without numeric problems at the upper end
+        var ewes = [Double]()
+        
+        ewes.append(portionU.lowerBound)
+        
+        
+        for g in 1...countU - 2   {
+            let middle = portionU.lowerBound + Double(g) * stepU
+            ewes.append(middle)
+        }
+        
+        ewes.append(portionU.upperBound)
+        
+        
+        /// Values for U across the range without numeric problems at the upper end
+        var vees = [Double]()
+        
+        vees.append(portionV.lowerBound)
+        
+        
+        for g in 1...countV - 2   {
+            let middle = portionV.lowerBound + Double(g) * stepV
+            vees.append(middle)
+        }
+        
+        vees.append(portionV.upperBound)
+        
+        
+        /// Points to be returned
+        var pips = [PointSurf]()
+        
+        for myU in ewes   {
+            for myV in vees   {
+                let spot = PointSurf(u: myU, v: myV)
+                pips.append(spot)
+            }
+        }
+        
+        return pips
+    }
+    
+    
+
+    
+}
+
+
+public func == (lhs: PointSurf, rhs: PointSurf) -> Bool   {
+    
+    let deltaU = abs(lhs.u - rhs.u)
+    let flagU = deltaU < PointSurf.Epsilon
+    
+    let deltaV = abs(lhs.v - rhs.v)
+    let flagV = deltaV < PointSurf.Epsilon
+    
+    return flagU && flagV
+}
+
+
+public func != (lhs: PointSurf, rhs: PointSurf) -> Bool   {
+    
+    let deltaU = abs(lhs.u - rhs.u)
+    let flagU = deltaU > PointSurf.Epsilon
+    
+    let deltaV = abs(lhs.v - rhs.v)
+    let flagV = deltaV > PointSurf.Epsilon
+    
+    return flagU || flagV
+}
+
+
+/// Tool for finding nearby points.
+public struct Neighborhood   {
+    
+    var rangeU: ClosedRange<Double>
+    var rangeV: ClosedRange<Double>
+    
+    
+    /// Build a rectangle from opposite corners.
+    init(cornerA: PointSurf, cornerB: PointSurf)   {
+        
+        var minU = cornerA.u
+        if cornerB.u < cornerA.u   { minU = cornerB.u }
+        
+        var maxU = cornerB.u
+        if cornerA.u > cornerB.u   { maxU = cornerA.u }
+        
+        self.rangeU = ClosedRange<Double>(uncheckedBounds: (lower: minU, upper: maxU))
+        
+        
+        var minV = cornerA.v
+        if cornerB.v < cornerA.v   { minV = cornerB.v }
+        
+        var maxV = cornerB.v
+        if cornerA.v > cornerB.v   { maxV = cornerA.v }
+        
+        self.rangeV = ClosedRange<Double>(uncheckedBounds: (lower: minV, upper: maxV))
+
+    }
+    
+    
+    /// See if a trial point is in the neighborhood.
+    public func isIn(trial: PointSurf) -> Bool   {
+        
+        let flagU = rangeU.contains(trial.u)
+        let flagV = rangeV.contains(trial.v)
+        
+        return flagU && flagV
     }
     
 }

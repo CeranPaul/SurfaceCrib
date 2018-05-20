@@ -79,8 +79,8 @@ class Sculpt   {
            // Demonstrate the ability to build a curve on the intersection of the surface and a plane
 //        let nexus2 = Point3D(x: 2.45, y: 1.2, z: 1.0)
 //        var pole2 = Vector3D(i: 0.97, j: -0.20, k: 0.0)
-        let nexus2 = Point3D(x: 2.05, y: 1.2, z: 1.0)
-        var pole2 = Vector3D(i: -0.08, j: 0.97, k: 0.0)
+        let nexus2 = Point3D(x: 2.05, y: 1.0, z: 1.0)
+        var pole2 = Vector3D(i: -0.08, j: 0.83, k: 0.4)
         pole2.normalize()
 
         /// The cutting plane
@@ -98,6 +98,16 @@ class Sculpt   {
             }
             
         }
+        
+        
+           // Experimenting with a more brute force method of finding the intersection.
+        
+        let rangeU = ClosedRange<Double>(uncheckedBounds: (lower: 0.0, upper: 0.5))
+        let rangeV = ClosedRange<Double>(uncheckedBounds: (lower: 0.5, upper: 1.0))
+        
+        let crosses = Bicubic.changeGrid(surf: board, blade: sheet, rangeU: rangeU, rangeV: rangeV)
+        displayLines.append(contentsOf: crosses)
+        
 
         
            // Build a curve from two points and two slopes
@@ -136,7 +146,6 @@ class Sculpt   {
         }
         
     }   // End of func init
-    
     
     
     /// Generate a surface for experimentation

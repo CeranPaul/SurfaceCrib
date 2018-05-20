@@ -72,7 +72,7 @@ public class LineSeg: PenCurve {    // Can this be a struct, instead?
     
     
     /// Attach new meaning to the curve
-    open func setIntent(_ purpose: PenTypes)   {
+    open func setIntent(purpose: PenTypes)   {
         
         self.usage = purpose
     }
@@ -85,7 +85,7 @@ public class LineSeg: PenCurve {    // Can this be a struct, instead?
         let tOmega = endOmega.transform(xirtam: xirtam)
         
         let transformed = try LineSeg(end1: tAlpha, end2: tOmega)   // Will generate a new extent
-        transformed.setIntent(self.usage)   // Copy setting instead of having the default
+        transformed.setIntent(purpose: self.usage)   // Copy setting instead of having the default
         
         return transformed
     }

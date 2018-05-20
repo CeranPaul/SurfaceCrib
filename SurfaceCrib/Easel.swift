@@ -20,6 +20,7 @@ class Easel: UIView   {
     var grey: CGColor
     var orange: CGColor
     var brown: CGColor
+    var purple: CGColor
 
         // Prepare pen widths
     let thick = CGFloat(4.0)
@@ -55,7 +56,9 @@ class Easel: UIView   {
         orange = CGColor(colorSpace: colorSpace, components: orangeComponents)!
         let brownComponents: [CGFloat] = [0.63, 0.33, 0.18, 1.0]   
         brown = CGColor(colorSpace: colorSpace, components: brownComponents)!
-        
+        let purpleComponents: [CGFloat] = [1.0, 0.33, 1.0, 1.0]
+        purple = CGColor(colorSpace: colorSpace, components: purpleComponents)!
+
         
         super.init(coder: aDecoder)!   // Done here to be able to use "self.bounds" for scaling below
         
@@ -99,13 +102,13 @@ class Easel: UIView   {
 //                context.setLineDash(phase: 4, lengths: [CGFloat(8), CGFloat(8)])    // Equal dashes
                 context.setLineDash(phase: 0, lengths: [])    // To clear any previous dash pattern
                 
-            case .Mesh:
-                context.setStrokeColor(black)
+            case .Positive:
+                context.setStrokeColor(orange)
                 context.setLineWidth(thin)
                 context.setLineDash(phase: 0, lengths: [])    // To clear any previous dash pattern
                 
-            case .Bachelor:
-                context.setStrokeColor(orange)
+            case .Negative:
+                context.setStrokeColor(purple)
                 context.setLineWidth(thin)
                 context.setLineDash(phase: 0, lengths: [])    // To clear any previous dash pattern
                 
