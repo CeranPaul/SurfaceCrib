@@ -149,10 +149,14 @@ public class Mesh   {
                     
     }
     
-    /// Fill a strip with triangles.  Port and starboard are important to get triangle normals in the proper direction
-    /// The chain counts may be different by one, in which case a wedge will be added at the finish
-    /// This could certainly benefit from an illustration
-    public static func skewLadderm1(port: [Point3D], starboard: [Point3D]) -> Mesh   {
+    /// Fill a strip with triangles.  Port and starboard are important to get triangle normals in the proper direction.
+    /// The chain counts may be different by one, in which case a wedge will be added at the finish.
+    /// This could certainly benefit from an illustration.
+    /// - Parameters:
+    ///   - port:  Column of points for one side
+    ///   - starboard: Column of points for other side
+    /// - Returns: Small Mesh
+    public static func fillLadder(port: [Point3D], starboard: [Point3D]) -> Mesh   {
         
         /// The triangle data that will be returned.
         let strip = Mesh()
@@ -200,6 +204,47 @@ public class Mesh   {
         return strip
     }
     
+    
+    /// Build a Mesh of two Facets from four points - using the shorter common edge
+    /// Points are assumed to be in CCW order
+    /// - Parameters:
+    ///   - ptA:  First point
+    ///   - ptB:  Second point in CCW order
+    ///   - ptC:  Third point
+    ///   - ptD:  Fourth point
+    /// - Returns: Tiny Mesh
+    /// - Throws: CoincidentPointsError if any of the vertices are duplicates
+    /// - Throws: TriangleError if the vertices are linear
+    /// - Throws: EdgeOverflowError if a third triangle was attempted
+    public static func meshFromFour(ptA: Point3D, ptB: Point3D, ptC: Point3D, ptD: Point3D) throws -> Mesh   {
+        
+        /// Collection of triangle pairs being constructed
+        let resultMesh = Mesh()
+        
+        let distanceAC = Point3D.dist(pt1: ptA, pt2: ptC)
+        let distanceBD = Point3D.dist(pt1: ptB, pt2: ptD)
+        
+        /// Two chips from four points
+        var flake1, flake2: Facet
+        
+        if distanceAC < distanceBD  {
+            
+            flake1 = try Facet(ptA: ptA, ptB: ptB, ptC: ptC)
+            flake2 = try Facet(ptA: ptC, ptB: ptD, ptC: ptA)
+            
+        }  else  {
+            
+            flake1 = try Facet(ptA: ptB, ptB: ptC, ptC: ptD)
+            flake2 = try Facet(ptA: ptD, ptB: ptA, ptC: ptB)
+            
+        }
+        
+        try resultMesh.add(shiny: flake1)
+        try resultMesh.add(shiny: flake2)
+        
+        return resultMesh
+    }
+    
 
     /// Transform a Mesh copy including the creation of new topology
     /// Should be thread safe
@@ -224,6 +269,7 @@ public class Mesh   {
         
         return sparkling
     }
+    
     
     /// Return LineSegs for the edges that are used exactly twice
     public static func getMated(screen: Mesh) -> [LineSeg]   {
@@ -259,42 +305,6 @@ public class Mesh   {
         return happy
     }
     
-    /// Build a Mesh of two Facets from four points - using the shorter common edge
-    /// Points are assumed to be in CCW order
-    /// - Returns: Small Mesh
-    /// Different than most other functions with this name
-    /// - Throws: CoincidentPointsError if any of the vertices are duplicates
-    /// - Throws: TriangleError if the vertices are linear
-    /// - Throws: EdgeOverflowError if a third triangle was attempted
-    public static func meshFromFour(ptA: Point3D, ptB: Point3D, ptC: Point3D, ptD: Point3D) throws -> Mesh   {
-        
-        /// Collection of triangle pairs being constructed
-        let resultMesh = Mesh()
-        
-        let distanceAC = Point3D.dist(pt1: ptA, pt2: ptC)
-        let distanceBD = Point3D.dist(pt1: ptB, pt2: ptD)
-        
-        /// Two chips from four points
-        var flake1, flake2: Facet
-        
-        if distanceAC < distanceBD  {
-            
-            flake1 = try Facet(ptA: ptA, ptB: ptB, ptC: ptC)
-            flake2 = try Facet(ptA: ptC, ptB: ptD, ptC: ptA)
-            
-        }  else  {
-            
-            flake1 = try Facet(ptA: ptB, ptB: ptC, ptC: ptD)
-            flake2 = try Facet(ptA: ptD, ptB: ptA, ptC: ptB)
-            
-        }
-        
-        try resultMesh.add(shiny: flake1)
-        try resultMesh.add(shiny: flake2)
-        
-        return resultMesh
-    }
-
 }
 
 

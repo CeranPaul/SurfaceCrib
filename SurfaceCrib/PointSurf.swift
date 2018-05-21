@@ -12,7 +12,7 @@ import Foundation
 /// u and v are the equivalent of s and t.
 /// No range checks are made to keep u and v between 0.0 and 1.0.
 /// The default initializer suffices.
-public struct PointSurf: Equatable   {
+public struct PointSurf: Hashable   {
     
     var u: Double
     var v: Double
@@ -166,6 +166,21 @@ public struct PointSurf: Equatable   {
         return pips
     }
     
+    
+    /// Generate the unique value
+    public var hashValue: Int   {
+        
+        get  {
+            
+            let divX = u / PointSurf.Epsilon
+            let myX = Int(round(divX))
+            
+            let divY = v / PointSurf.Epsilon
+            let myY = Int(round(divY))
+            
+            return myX.hashValue + myY.hashValue
+        }
+    }
     
 
     

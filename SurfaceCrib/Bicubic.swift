@@ -762,7 +762,7 @@ open class Bicubic   {
     /// - Parameters:
     ///   - board:  The surface to be illustrated
     /// - Returns: An array of line segments
-    public static func triData(board: Bicubic) -> [LineSeg]   {
+    public static func triLines(board: Bicubic) -> [LineSeg]   {
         
         /// The data to be returned
         var dashes = [LineSeg]()
@@ -807,6 +807,66 @@ open class Bicubic   {
         }
 
         return dashes
+    }
+    
+    
+    /// Generate triangles without regard to allowable crown.
+    /// - Parameters:
+    ///   - surf: The surface to be split
+    ///   - divs: Number of divisions in each direction
+    public static func dumbTess(surf: Bicubic, divs: Int) -> (xednis: [Int], verts: [PointSurf])   {
+        
+        /// The first return value of the tuple
+        var refs = [Int]()
+        
+        /// The second return value of the tuple
+        var inRowOrder = [PointSurf]()
+
+        
+        /// Regular increment in both U and V
+        let step = 1.0 / Double(divs)
+        
+        for g in 0...divs   {   // Iterate the V value
+            
+            var myV = Double(g) * step
+            
+            if g == divs   { myV = 1.0 }   // Avoid overflow
+            
+            for c in 0...divs   {   // Iterate the U value
+                
+                var myU = Double(c) * step
+                
+                if c == divs   { myU = 1.0 }
+                
+                let freshPoint = PointSurf(u: myU, v: myV)
+                inRowOrder.append(freshPoint)   // Add this point to the Array
+                
+            }   // Inner loop
+            
+        }   // Outer loop
+        
+        
+        for g in 1...divs   {
+            
+            for c in 1...divs   {
+                
+                let indexA = g * divs + c   // Traverse the four CCW starting from upper right
+                let indexB = g * divs + c - 1
+                let indexC = (g - 1) * divs + c - 1
+                let indexD = (g - 1) * divs + c
+
+                refs.append(indexA)
+                refs.append(indexB)
+                refs.append(indexC)
+
+                refs.append(indexC)
+                refs.append(indexD)
+                refs.append(indexA)
+                
+            }
+        }
+        
+        return (refs, inRowOrder)
     }
     
     

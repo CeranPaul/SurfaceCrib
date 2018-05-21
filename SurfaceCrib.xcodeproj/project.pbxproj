@@ -208,6 +208,8 @@
 				81A87E3520A37C84003FF3ED /* CurveUV.swift */,
 				811E41421FFB155300E1250A /* PointSurf.swift */,
 				81A87D9B209BD215003FF3ED /* VectorSurf.swift */,
+				81F22FB420B21A2300418E5A /* PointPair.swift */,
+				81483C8020A4C13B00D1D852 /* ExtentUV.swift */,
 				811E41281FFB153400E1250A /* Easel.swift */,
 				811E41651FFB178D00E1250A /* Mesh.swift */,
 				811E41691FFB1D1100E1250A /* EdgeShare.swift */,
@@ -232,9 +234,6 @@
 				811E410E1FFB130200E1250A /* Assets.xcassets */,
 				811E41101FFB130200E1250A /* LaunchScreen.storyboard */,
 				811E41131FFB130200E1250A /* Info.plist */,
-				81483C8020A4C13B00D1D852 /* ExtentUV.swift */,
-				81483C8320A6599F00D1D852 /* ConvergenceError.swift */,
-				81F22FB420B21A2300418E5A /* PointPair.swift */,
 			);
 			path = SurfaceCrib;
 			sourceTree = "<group>";
@@ -252,6 +251,7 @@
 		811E41731FFB2F6D00E1250A /* Errors */ = {
 			isa = PBXGroup;
 			children = (
+				81483C8320A6599F00D1D852 /* ConvergenceError.swift */,
 				81A87E3320A37C68003FF3ED /* ParameterRangeErrorUno.swift */,
 				811E41371FFB154200E1250A /* ArcPointsError.swift */,
 				811E412B1FFB153400E1250A /* CoincidentLinesError.swift */,

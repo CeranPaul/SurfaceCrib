@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="ipad10_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -19,23 +19,37 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MIe-wy-ecI" customClass="Easel" customModule="SurfaceCrib" customModuleProvider="target">
-                                <rect key="frame" x="20" y="40" width="794" height="1052"/>
+                                <rect key="frame" x="20" y="592" width="794" height="500"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <gestureRecognizers/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="500" id="iJh-GB-MBD"/>
+                                </constraints>
                                 <connections>
                                     <outletCollection property="gestureRecognizers" destination="fT2-fc-eo3" appends="YES" id="xtH-KU-08Y"/>
                                 </connections>
                             </view>
+                            <sceneKitView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" allowsCameraControl="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wUa-Sy-hsj">
+                                <rect key="frame" x="20" y="40" width="794" height="500"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="500" id="6dk-QT-mCQ"/>
+                                </constraints>
+                            </sceneKitView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="MIe-wy-ecI" secondAttribute="trailing" constant="20" id="2Tc-Xc-2u2"/>
                             <constraint firstItem="MIe-wy-ecI" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="O31-uI-Tbn"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="MIe-wy-ecI" secondAttribute="bottom" constant="20" id="OdR-YQ-l1L"/>
-                            <constraint firstItem="MIe-wy-ecI" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="lXs-xc-W5d"/>
+                            <constraint firstItem="wUa-Sy-hsj" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="UeW-F1-uLS"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="wUa-Sy-hsj" secondAttribute="trailing" constant="20" id="XsE-6g-MoJ"/>
+                            <constraint firstItem="wUa-Sy-hsj" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="unq-eS-3D7"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <connections>
+                        <outlet property="sceneView" destination="wUa-Sy-hsj" id="A5n-SY-4ti"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
                 <panGestureRecognizer minimumNumberOfTouches="1" id="fT2-fc-eo3">

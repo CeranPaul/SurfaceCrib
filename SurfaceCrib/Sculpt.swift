@@ -8,6 +8,7 @@
 
 import UIKit
 import simd
+import SceneKit
 
 /// Model geometry to be displayed
 var modelGeo = Sculpt()
@@ -27,10 +28,16 @@ class Sculpt   {
     /// Rotation center
     var rotCenter = Point3D(x: 0.0, y: 0.0, z: 0.0)   // Will get replaced in "init"
     
+    /// Geometry to be displayed
+    var likeness: SCNGeometry
     
+
     init()   {
         
-        /// Sample surface
+        /// Dummy value for geometry to be displayed
+        likeness = SCNBox(width: 6.0, height: 6.0, length: 6.0, chamferRadius: 0.75)
+        
+       /// Sample surface
         let board = generateSurf1()
         
         let brick = board.getExtent()
@@ -102,13 +109,18 @@ class Sculpt   {
         
            // Experimenting with a more brute force method of finding the intersection.
         
-        let rangeU = ClosedRange<Double>(uncheckedBounds: (lower: 0.0, upper: 0.5))
+        let rangeU = ClosedRange<Double>(uncheckedBounds: (lower: 0.5, upper: 1.0))
         let rangeV = ClosedRange<Double>(uncheckedBounds: (lower: 0.5, upper: 1.0))
         
         let crosses = Bicubic.changeGrid(surf: board, blade: sheet, rangeU: rangeU, rangeV: rangeV)
         displayLines.append(contentsOf: crosses)
         
-
+        
+           // Test out dumb tessellation
+        let kevlar = Bicubic.dumbTess(surf: board, divs: 12)
+        
+        likeness = makeScene(surf: board, indices: kevlar.xednis, triBlend: kevlar.verts)
+        
         
            // Build a curve from two points and two slopes
         let alpha = PointSurf(u: 0.30, v: 0.20)
@@ -279,5 +291,47 @@ class Sculpt   {
         return board
     }
     
+    /// Make SCNGeometry from a couple of arrays
+    public func makeScene(surf: Bicubic, indices: [Int], triBlend: [PointSurf]) -> SCNGeometry   {
+        
+        let indicesU16 = indices.map( { UInt16($0) } )
+        let geo2Elem = SCNGeometryElement(indices: indicesU16, primitiveType: SCNGeometryPrimitiveType.triangles)
+        
+        
+        
+            // Generate 3D geometry data and bogus texture information
+        var posArray = [SCNVector3]()
+        var normArray = [SCNVector3]()
+        var texArray = [CGPoint]()
+        
+        for ptSurf in triBlend   {
+            
+            let pt = try! surf.pointAt(spot: ptSurf)
+            
+            let pos = SCNVector3(Float32(pt.x), Float32(pt.y), Float32(pt.z))
+            posArray.append(pos)
+            
+            let rocket = try! surf.normalAt(spot: ptSurf)
+            let norm = SCNVector3(Float32(rocket.i), Float32(rocket.j), Float32(rocket.k))
+            normArray.append(norm)
+            
+            let textCoord = CGPoint(x: CGFloat(ptSurf.u), y: CGFloat(ptSurf.v))
+            texArray.append(textCoord)
+        }
+        
+        
+        // Package it all up for SceneKit
+        let posSource = SCNGeometrySource(vertices: posArray)
+        let normSource = SCNGeometrySource(normals: normArray)
+        let texSource = SCNGeometrySource(textureCoordinates: texArray)
+        
+        let sourceColl = [posSource, normSource, texSource]
+        let elemColl = [geo2Elem]
+        
+        let blizzardGeo = SCNGeometry(sources: sourceColl, elements: elemColl)
+        
+        return blizzardGeo
+    }
     
+
 }
