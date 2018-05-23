@@ -79,6 +79,8 @@
 		811E41901FFC681C00E1250A /* ParallelPlanesError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E413E1FFB155200E1250A /* ParallelPlanesError.swift */; };
 		811E41911FFC682200E1250A /* TriangleError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E416D1FFB1D2F00E1250A /* TriangleError.swift */; };
 		811E41921FFC683700E1250A /* Plane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E41461FFB155300E1250A /* Plane.swift */; };
+		812FC57620B464DD00DD03EC /* SurfaceMesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 812FC57520B464DC00DD03EC /* SurfaceMesh.swift */; };
+		812FC57720B464DD00DD03EC /* SurfaceMesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 812FC57520B464DC00DD03EC /* SurfaceMesh.swift */; };
 		81483C8120A4C13B00D1D852 /* ExtentUV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81483C8020A4C13B00D1D852 /* ExtentUV.swift */; };
 		81483C8220A4C13B00D1D852 /* ExtentUV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81483C8020A4C13B00D1D852 /* ExtentUV.swift */; };
 		81483C8420A659A000D1D852 /* ConvergenceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81483C8320A6599F00D1D852 /* ConvergenceError.swift */; };
@@ -156,6 +158,7 @@
 		811E416F1FFB204900E1250A /* EdgeOverflowError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EdgeOverflowError.swift; sourceTree = "<group>"; };
 		811E41711FFB26EF00E1250A /* BicubicTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BicubicTests.swift; sourceTree = "<group>"; };
 		811E41741FFB4E8800E1250A /* SurfTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurfTypes.swift; sourceTree = "<group>"; };
+		812FC57520B464DC00DD03EC /* SurfaceMesh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurfaceMesh.swift; sourceTree = "<group>"; };
 		81483C8020A4C13B00D1D852 /* ExtentUV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtentUV.swift; sourceTree = "<group>"; };
 		81483C8320A6599F00D1D852 /* ConvergenceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvergenceError.swift; sourceTree = "<group>"; };
 		81A87D9B209BD215003FF3ED /* VectorSurf.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VectorSurf.swift; sourceTree = "<group>"; };
@@ -214,6 +217,7 @@
 				811E41651FFB178D00E1250A /* Mesh.swift */,
 				811E41691FFB1D1100E1250A /* EdgeShare.swift */,
 				811E416B1FFB1D1900E1250A /* Facet.swift */,
+				812FC57520B464DC00DD03EC /* SurfaceMesh.swift */,
 				811E41741FFB4E8800E1250A /* SurfTypes.swift */,
 				811E414B1FFB155400E1250A /* Line.swift */,
 				811E41441FFB155300E1250A /* LineSeg.swift */,
@@ -383,6 +387,7 @@
 				81F22FB520B21A2300418E5A /* PointPair.swift in Sources */,
 				811E41591FFB155400E1250A /* SurfaceInputError.swift in Sources */,
 				811E410A1FFB130200E1250A /* ViewController.swift in Sources */,
+				812FC57620B464DD00DD03EC /* SurfaceMesh.swift in Sources */,
 				811E41351FFB153500E1250A /* CoordinateSystem.swift in Sources */,
 				81A87D9C209BD215003FF3ED /* VectorSurf.swift in Sources */,
 				811E416E1FFB1D3000E1250A /* TriangleError.swift in Sources */,
@@ -463,6 +468,7 @@
 				811E417F1FFC670400E1250A /* Transform.swift in Sources */,
 				81F22FB320AD2E1200418E5A /* Sculpt.swift in Sources */,
 				811E41891FFC67E500E1250A /* CoincidentPlanesError.swift in Sources */,
+				812FC57720B464DD00DD03EC /* SurfaceMesh.swift in Sources */,
 				81483C8520A659A000D1D852 /* ConvergenceError.swift in Sources */,
 				811E417D1FFC66F800E1250A /* Line.swift in Sources */,
 				81A87D9D209BD215003FF3ED /* VectorSurf.swift in Sources */,

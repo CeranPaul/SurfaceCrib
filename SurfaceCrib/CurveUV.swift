@@ -23,10 +23,10 @@ public class CubicUV   {
     var dv: Double
     
     /// Acceptable values of t
-    var range: ClosedRange<Double>
+    public var range: ClosedRange<Double>
     
     /// The surface that holds this curve
-    var residentSurf: Bicubic
+    public var residentSurf: Bicubic
     
     
     /// The direct constructor
@@ -230,6 +230,16 @@ public class CubicUV   {
     }
     
     
+    /// Convenience method
+    func pointAt3D(t: Double) -> Point3D   {
+        
+        let surfPoint = try! self.pointAt(t: t)
+        let spacePoint = try! self.residentSurf.pointAt(spot: surfPoint)
+        
+        return spacePoint
+    }
+    
+    
     /// Find an orthogonal box that surrounds the curve.
     /// - Returns: Rectangular box in UV
     public func getExtent() -> ExtentUV   {
@@ -251,6 +261,8 @@ public class CubicUV   {
         let box = ExtentUV(spots: dots)
         return box
     }
+    
+    
     
     
     /// Divide the curve while maintaining a maximum allowable crown.
@@ -322,6 +334,232 @@ public class CubicUV   {
     }
     
     
+    
+    /// Find a single intersection point of two surface curves.
+    /// - Parameters:
+    ///   - lhs: One unbounded curve
+    ///   - rhs: Another unbounded curve
+    /// - Returns: Dummy value
+    public static func intersect(lhs: CubicUV, rhs: CubicUV) -> [LineSeg]   {
+        
+        // Would be good to check that the curves are on the same surface!
+        
+        /// Surface for operations
+        let wavy = lhs.residentSurf
+        
+        
+           // Build a plane for each curve as a rough approximation.  This will fail for a straight line.
+        
+        let tees = [0.0, 0.5, 1.0]
+        
+        var ptsUV = tees.map( { try! lhs.pointAt(t: $0) } )
+        
+        var pts3D = ptsUV.map( { try! wavy.pointAt(spot: $0) } )
+
+        let lhPlane = try! Plane(alpha: pts3D[0], beta: pts3D[1], gamma: pts3D[2])
+        
+        
+        ptsUV = tees.map( { try! rhs.pointAt(t: $0) } )
+        pts3D = ptsUV.map( { try! wavy.pointAt(spot: $0) } )
+        let rhPlane = try! Plane(alpha: pts3D[0], beta: pts3D[1], gamma: pts3D[2])
+        
+        let rhRange = rhs.planeCrossing(flat: lhPlane)
+        let lhRange = lhs.planeCrossing(flat: rhPlane)
+
+        /// Illustration of points
+        var rice = [LineSeg]()
+        
+        var barb = rhs.pointAt3D(t: (rhRange?.lowerBound)!)
+        var dashes = Point3D.crosshair(pip: barb)   // Illustrate the intersection point
+        rice.append(contentsOf: dashes)
+        
+        barb = rhs.pointAt3D(t: (rhRange?.upperBound)!)
+        dashes = Point3D.crosshair(pip: barb)   // Illustrate the intersection point
+        rice.append(contentsOf: dashes)
+        
+        barb = lhs.pointAt3D(t: (lhRange?.lowerBound)!)
+        dashes = Point3D.crosshair(pip: barb)   // Illustrate the intersection point
+        rice.append(contentsOf: dashes)
+        
+        barb = lhs.pointAt3D(t: (lhRange?.upperBound)!)
+        dashes = Point3D.crosshair(pip: barb)   // Illustrate the intersection point
+        rice.append(contentsOf: dashes)
+        
+
+        let crossing = PointSurf(u: 0.75, v: 0.15)
+        
+        return rice
+    }
+    
+    
+    
+    /// Check of whether or not a parameter range of this curve crosses a line.
+    /// - Parameters:
+    ///   - egnar: Range of this curve to be tested
+    ///   - base: Origin of the reference line
+    ///   - dir: Direction of the reference line
+    /// - Returns: Simple flag
+    public func isRangeCrossing(egnar: ClosedRange<Double>, base: PointSurf, dir: VectorSurf) -> Bool   {
+        
+        let resolvePerp: (Double) -> VectorSurf =  {
+            
+            let pip = try! self.pointAt(t: $0)
+            let deltaU = pip.u - base.u
+            let deltaV = pip.v - base.v
+            let bridge = VectorSurf(i: deltaU, j: deltaV)   // Not normalized
+            
+            let magnitude = VectorSurf.dotProduct(lhs: bridge, rhs: dir)
+            let projection = dir * magnitude
+            
+            let perp = bridge - projection
+            
+            return perp
+        }
+        
+        let resolveLower = resolvePerp(egnar.lowerBound)
+        let resolveUpper = resolvePerp(egnar.upperBound)
+        
+        let relative = VectorSurf.dotProduct(lhs: resolveLower, rhs: resolveUpper)
+        
+        return relative < 0.0
+    }
+    
+    
+    /// Figure out multiple intersections.
+    public func findMultipleCrossings(startingRange: ClosedRange<Double>, base: PointSurf, dir: VectorSurf) -> [PointSurf]   {
+        
+        /// Smaller ranges to check.
+        let chunks = startingRange / 20
+        
+        /// Ranges of the curve where it crosses the line.
+        let keepers = chunks.filter(  { isRangeCrossing(egnar: $0, base: base, dir: dir) } )
+        
+        var found = [PointSurf]()
+        
+        for railroad in keepers   {   // This could be done as a map on keepers
+            
+            if let collide = try! convergeCrossing(startingRange: railroad, base: base, dir: dir)   {
+                found.append(collide)
+            }
+        }
+        
+        return found
+    }
+    
+    
+    /// Successive refinement to find the crossing point.
+    /// - Parameters:
+    ///   - startingRange: Portion of this curve that has a crossing.
+    ///   - base: Origin of the reference line
+    ///   - dir: Direction of the reference line
+    /// - Returns: Optional surface point
+    /// - SeeAlso: 'findMultipleCrossings' to screen the entire curve.
+    public func convergeCrossing(startingRange: ClosedRange<Double>, base: PointSurf, dir: VectorSurf) throws -> PointSurf?   {
+        
+        /// Limit to stop runaway loop
+        var backstop = 0
+        
+        var narrower = startingRange
+        
+        repeat   {
+            
+            /// Subranges to check
+            let pieces = narrower / 5
+            
+            for small in pieces   {
+                
+                if isRangeCrossing(egnar: small, base: base, dir: dir)   {
+                    
+                    let thumb = try! self.pointAt(t: small.lowerBound)
+                    let finger = try! self.pointAt(t: small.upperBound)
+                    
+                    let sep = PointSurf.dist(pt1: thumb, pt2: finger)
+                    
+                    if sep < PointSurf.Epsilon   {   // Within the desired accuracy?
+                        return thumb
+                    }
+                    
+                    narrower = small
+                    break
+                }
+                
+            }   // Wastes some CPU time if no crossing is found
+            
+            backstop += 1
+            
+        }   while backstop < 12
+        
+        if backstop > 11  { throw ConvergenceError(tnuoc: backstop)}
+        
+        return nil
+    }
+    
+    
+    
+    /// Check if the triangle edges cross this curve.
+    /// Should eventually change to return the intersection points.
+    /// - Parameters:
+    ///   - alpha: One vertex
+    ///   - beta: Another vertex
+    ///   - gamma: Closing vertex
+    /// - Returns: Simple flag
+    public func isTriangleCrossing(alpha: PointSurf, beta: PointSurf, gamma: PointSurf) -> Bool   {
+        
+        /// Range for the entire curve
+        let whole = ClosedRange<Double>(uncheckedBounds: (lower: 0.0, upper: 1.0))
+        
+        var base = alpha
+        var dir = VectorSurf.build(from: alpha, to: beta, unit: true)
+        
+        var crossings = self.findMultipleCrossings(startingRange: whole, base: base, dir: dir)
+        
+        let flag1 = crossings.count > 0
+        
+        
+        base = beta
+        dir = VectorSurf.build(from: beta, to: gamma, unit: true)
+        
+        crossings = self.findMultipleCrossings(startingRange: whole, base: base, dir: dir)
+        
+        let flag2 = crossings.count > 0
+        
+        
+        base = gamma
+        dir = VectorSurf.build(from: gamma, to: alpha, unit: true)
+        
+        crossings = self.findMultipleCrossings(startingRange: whole, base: base, dir: dir)
+        
+        let flag3 = crossings.count > 0
+        
+        return flag1 || flag2 || flag3
+    }
+    
+    
+    /// See which portion of the curve crosses a plane.  First pass to reduce the search length.
+    func planeCrossing(flat: Plane) -> ClosedRange<Double>?   {
+        
+
+        /// Divisions for the range
+        let borders = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+        
+        for g in 1..<borders.count   {
+            
+            let underT = borders[g - 1]
+            let overT = borders[g]
+            
+            let alpha = self.pointAt3D(t: underT)
+            let beta = self.pointAt3D(t: overT)
+            
+            if flat.isOpposite(pointA: alpha, pointB: beta)   {
+                return ClosedRange<Double>(uncheckedBounds: (lower: underT, upper: overT))
+            }
+        }
+        
+        
+        return nil
+    }
+    
+
     /// Caluclate deviation from a LineSeg
     public static func crownCalcs(dots: [Point3D]) -> Double   {
         
@@ -333,6 +571,35 @@ public class CubicUV   {
         return curCrown
     }
     
-    
-
 }
+
+
+/// Subdivide a ClosedRange<Double>
+/// This would be a good extension to ClosedRange
+public  func / (egnar: ClosedRange<Double>, pieces: Int) -> [ClosedRange<Double>]  {
+    
+    let step = (egnar.upperBound - egnar.lowerBound) / Double(pieces)
+    
+    /// The return value
+    var finer = [ClosedRange<Double>]()
+    
+    for g in 1...pieces   {
+        
+        var freshUpper = egnar.lowerBound + Double(g) * step
+        
+        if g == pieces   {
+            freshUpper = egnar.upperBound   // Avoid numeric problems
+        }
+        
+        let freshLower = egnar.lowerBound + Double(g - 1) * step
+        
+        
+        let chopped = ClosedRange<Double>(uncheckedBounds: (lower: freshLower, upper: freshUpper))
+        finer.append(chopped)
+        
+    }
+    
+    return finer
+}
+
+

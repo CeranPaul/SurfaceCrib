@@ -15,6 +15,7 @@ public struct ExtentUV   {
     var rangeV: ClosedRange<Double>
     
     
+    
     /// Find the enclosing area for an Array of points
     init(spots: [PointSurf]) {
         
@@ -30,6 +31,16 @@ public struct ExtentUV   {
         rangeU = ClosedRange(uncheckedBounds: (lower: leastU, upper: mostU))
         rangeV = ClosedRange(uncheckedBounds: (lower: leastV, upper: mostV))
         
+    }
+    
+    
+    /// See whether the two areas overlap
+    public static func isOverlapping(lhs: ExtentUV, rhs: ExtentUV) -> Bool   {
+        
+        let flagU = lhs.rangeU.overlaps(rhs.rangeU)
+        let flagV = lhs.rangeV.overlaps(rhs.rangeV)
+        
+        return flagU && flagV
     }
     
 

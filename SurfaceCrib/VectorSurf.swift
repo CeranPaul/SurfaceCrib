@@ -36,6 +36,23 @@ public struct VectorSurf   {
     }
     
     
+    /// Create vector between two points
+    /// - Parameters:
+    ///   - from: Tail point
+    ///   - to: Head point
+    /// - Returns: New VectorSurf
+    public static func build(from: PointSurf, to: PointSurf, unit: Bool = false) -> VectorSurf   {
+        
+        let deltaU = to.u - from.u
+        let deltaV = to.v - from.v
+        
+        var fresh = VectorSurf(i: deltaU, j: deltaV)
+        
+        if unit   { fresh.normalize() }
+        
+        return fresh
+    }
+    
     /// Check to see if the vector has zero length
     /// - Returns: A simple flag
     public func isZero() -> Bool   {
@@ -46,6 +63,15 @@ public struct VectorSurf   {
         return flagI && flagJ
     }
     
+    
+    /// Standard definition of dot product
+    /// - Returns: Scalar magnitude
+    public static func dotProduct(lhs: VectorSurf, rhs: VectorSurf) -> Double   {
+        
+        return lhs.i * rhs.i + lhs.j * rhs.j
+    }
+    
+
     public static func sumBundle(bin: [VectorSurf]) -> VectorSurf   {
         
         let compI = bin.map{$0.i}
@@ -67,4 +93,12 @@ public func * (lhs: VectorSurf, scalar: Double) -> VectorSurf   {
     
     return VectorSurf(i: scaledI, j: scaledJ)
 }
+
+
+/// Construct a vector that is the difference between the two input vectors
+public func - (lhs: VectorSurf, rhs: VectorSurf) -> VectorSurf   {
+    
+    return VectorSurf(i: lhs.i - rhs.i, j: lhs.j - rhs.j)
+}
+
 

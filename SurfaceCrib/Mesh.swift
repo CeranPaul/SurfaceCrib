@@ -115,13 +115,6 @@ public class Mesh   {
         
     }
     
-    // Will need to test for overlaps
-    
-    /// Find an edge among Facets already recorded
-    //    func findExist(ptAlpha: Point3D, ptOmega: Point3D) -> Triangle  {
-    //
-    //    }
-    
     
     /// Pile on a new Facet starting from three points
     /// - Parameters:
@@ -148,6 +141,7 @@ public class Mesh   {
         scales.append(dorito)
                     
     }
+    
     
     /// Fill a strip with triangles.  Port and starboard are important to get triangle normals in the proper direction.
     /// The chain counts may be different by one, in which case a wedge will be added at the finish.
@@ -272,6 +266,7 @@ public class Mesh   {
     
     
     /// Return LineSegs for the edges that are used exactly twice
+    /// - Returns: Array of LineSegs
     public static func getMated(screen: Mesh) -> [LineSeg]   {
         
         /// Array to be returned
@@ -288,7 +283,9 @@ public class Mesh   {
         return happy
     }
     
+    
     /// Return LineSegs for the edges that are used only once
+    /// - Returns: Array of LineSegs
     public static func getBach(screen: Mesh) -> [LineSeg]   {
         
         /// Array to be returned

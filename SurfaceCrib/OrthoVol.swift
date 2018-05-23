@@ -186,7 +186,7 @@ public struct OrthoVol   {
         return long
     }
     
-/// See whether the two volumes overlap
+    /// See whether the two volumes overlap
     public static func isOverlapping(lhs: OrthoVol, rhs: OrthoVol) -> Bool   {
         
         let flagX = lhs.rangeX.overlaps(rhs.rangeX)

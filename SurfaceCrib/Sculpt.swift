@@ -57,7 +57,7 @@ class Sculpt   {
         
            // Show the intersection of a line with the surface
            // There are a million other tests that should be run for this ability
-        let nexus = Point3D(x: 0.55, y: -0.3, z: 2.0)
+        var nexus = Point3D(x: 0.55, y: -0.3, z: 2.0)
         var thataway = Vector3D(i: 0.2, j: -0.15, k: 0.6)
         thataway.normalize()
 
@@ -70,7 +70,7 @@ class Sculpt   {
         let yon = nexus.offset(jump: jump)
 
         let pole = try! LineSeg(end1: hither, end2: yon)
-        displayLines.append(pole)
+//        displayLines.append(pole)
 
         /// Intersection of line and surface
         let splash = try! Bicubic.intersectSurfLine(surf: board, arrow: laser)
@@ -79,25 +79,48 @@ class Sculpt   {
         let smack = splash.spot
 
         let dashes = Point3D.crosshair(pip: smack)   // Illustrate the intersection point
-        displayLines.append(contentsOf: dashes)
+//        displayLines.append(contentsOf: dashes)
         
         
         
            // Demonstrate the ability to build a curve on the intersection of the surface and a plane
 //        let nexus2 = Point3D(x: 2.45, y: 1.2, z: 1.0)
 //        var pole2 = Vector3D(i: 0.97, j: -0.20, k: 0.0)
-        let nexus2 = Point3D(x: 2.05, y: 1.0, z: 1.0)
-        var pole2 = Vector3D(i: -0.08, j: 0.83, k: 0.4)
+        let nexus2 = Point3D(x: 2.05, y: 1.2, z: 1.0)
+        var pole2 = Vector3D(i: -0.08, j: 0.83, k: -0.5)
         pole2.normalize()
 
         /// The cutting plane
         let sheet = try! Plane(spot: nexus2, arrow: pole2)
 
         
-        if let fence = board.intersectPerp(blade: sheet, accuracy: 0.001)   {
+        let fence = board.intersectPerp(blade: sheet, accuracy: 0.001)
+        
+        if (fence != nil)   {
             
             // Draw the curve
-            var dots = fence.split(allowableCrown: 0.003)
+            var dots = fence!.split(allowableCrown: 0.003)
+            
+            for g in 1..<dots.count   {
+                let wire = try! LineSeg(end1: dots[g - 1], end2: dots[g])
+//                displayLines.append(wire)
+            }
+            
+        }
+        
+        nexus = Point3D(x: 1.55, y: 1.0, z: 1.0)
+        thataway = Vector3D(i: 0.97, j: 0.10, k: 0.0)
+        thataway.normalize()
+        
+        /// The clipping plane
+        let clip1 = try! Plane(spot: nexus, arrow: thataway)
+
+        let right = board.intersectPerp(blade: clip1, accuracy: 0.001)
+        
+        if (right != nil)   {
+            
+            // Draw the curve
+            var dots = right!.split(allowableCrown: 0.003)
             
             for g in 1..<dots.count   {
                 let wire = try! LineSeg(end1: dots[g - 1], end2: dots[g])
@@ -106,6 +129,70 @@ class Sculpt   {
             
         }
         
+
+        nexus = Point3D(x: -1.25, y: 1.0, z: 1.0)
+        thataway = Vector3D(i: 0.97, j: 0.10, k: 0.0)
+        thataway.normalize()
+        
+        /// The clipping plane
+        let clip2 = try! Plane(spot: nexus, arrow: thataway)
+        
+        let left = board.intersectPerp(blade: clip2, accuracy: 0.001)
+        
+        if (left != nil)   {
+                
+                // Draw the curve
+            var dots = left!.split(allowableCrown: 0.003)
+            
+            for g in 1..<dots.count   {
+                let wire = try! LineSeg(end1: dots[g - 1], end2: dots[g])
+//                displayLines.append(wire)
+            }
+            
+        }
+        
+        nexus = Point3D(x: -1.0, y: -1.45, z: 2.0)
+        thataway = Vector3D(i: 0.0, j: -1.0, k: 0.0)
+        thataway.normalize()
+        
+        /// The clipping plane
+        let clip3 = try! Plane(spot: nexus, arrow: thataway)
+        
+        let bottom = board.intersectPerp(blade: clip3, accuracy: 0.001)
+        
+        if (bottom != nil)   {
+            // Draw the curve
+            var dots = bottom!.split(allowableCrown: 0.003)
+            
+            for g in 1..<dots.count   {
+                let wire = try! LineSeg(end1: dots[g - 1], end2: dots[g])
+//                displayLines.append(wire)
+            }
+            
+        }
+        
+        if (bottom != nil)  &&  (right != nil)   {
+            let corner = CubicUV.intersect(lhs: bottom!, rhs: right!)
+            
+//            displayLines.append(contentsOf: corner)
+ 
+        }
+        
+            // Check out functions for intersecting a LineSeg
+        let oneEnd = PointSurf(u: 0.9, v: 0.4)
+        let otherEnd = PointSurf(u: 0.6, v: 0.35)
+        
+        let deltaU = otherEnd.u - oneEnd.u
+        let deltaV = otherEnd.v - oneEnd.v
+        
+        var beacon = VectorSurf(i: deltaU, j: deltaV)
+        beacon.normalize()
+        
+        let whole = ClosedRange<Double>(uncheckedBounds: (lower: 0.0, upper: 1.0))
+        
+        let crashes = right!.findMultipleCrossings(startingRange: whole, base: oneEnd, dir: beacon)
+
+        print(crashes.first!)
         
            // Experimenting with a more brute force method of finding the intersection.
         
@@ -113,12 +200,30 @@ class Sculpt   {
         let rangeV = ClosedRange<Double>(uncheckedBounds: (lower: 0.5, upper: 1.0))
         
         let crosses = Bicubic.changeGrid(surf: board, blade: sheet, rangeU: rangeU, rangeV: rangeV)
-        displayLines.append(contentsOf: crosses)
+//        displayLines.append(contentsOf: crosses)
         
         
            // Test out dumb tessellation
         let kevlar = Bicubic.dumbTess(surf: board, divs: 12)
         
+        /// Mesh for the working surface.
+        let kmesh = SurfaceMesh(surf: board)
+        
+        for g in stride(from: 2, to: kevlar.xednis.count, by: 3)   {
+            
+            let alphaIndex = kevlar.xednis[g - 2]
+            let betaIndex = kevlar.xednis[g - 1]
+            let gammaIndex = kevlar.xednis[g]
+            kmesh.add(alpha: kevlar.verts[alphaIndex], beta: kevlar.verts[betaIndex], gamma: kevlar.verts[gammaIndex])
+            
+        }
+        
+        let highway = right!.getExtent()
+        let shoulder = kmesh.overlap(target: highway)
+            
+
+        
+        /// Fodder for a SceneKit window
         likeness = makeScene(surf: board, indices: kevlar.xednis, triBlend: kevlar.verts)
         
         
@@ -135,7 +240,7 @@ class Sculpt   {
         
         for g in 1..<dots.count   {
             let wire = try! LineSeg(end1: dots[g - 1], end2: dots[g])
-            displayLines.append(wire)
+//            displayLines.append(wire)
         }
 
         
@@ -154,7 +259,7 @@ class Sculpt   {
         
         for g in 1..<dots.count   {
             let wire = try! LineSeg(end1: dots[g - 1], end2: dots[g])
-            displayLines.append(wire)
+//            displayLines.append(wire)
         }
         
     }   // End of func init
